@@ -21,6 +21,7 @@ def make_markers():
 FORMAT = '.pdf'
 set1 = brewer2mpl.get_map('Set1', 'qualitative', 9).mpl_colors
 set1.append((0., 0., 0.1))
+set2 = set1[:5] + set1[6:] # set2 is like set1 but without yellow
 COLORS = 'bgrcmykw'.replace('w', '')
 
 
