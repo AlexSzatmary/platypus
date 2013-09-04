@@ -3,6 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def make_markers():
     markers = '.,ov^<>1234sp*hH+xDd|_'
     good_markers = [2, 4, 11, 12, 13, 15, 16, 17, 18, 19, 20]
@@ -22,27 +23,35 @@ FORMAT = '.pdf'
 set1 = brewer2mpl.get_map('Set1', 'qualitative', 9).mpl_colors
 set1.append((0., 0., 0.1))
 set2 = set1[:5] + set1[6:] # set2 is like set1 but without yellow
+def set2_color_f(i):
+    return set2[(i - 1) % len(set2)]
 COLORS = 'bgrcmykw'.replace('w', '')
 
 
 class figure(object):
     def __init__(self, axes=None, figsize=(7.5, 6.),
-                 style='print', subplot=None):
+                 style='print', subplot=None, legend_bbox=None):
         self.fig = plt.figure(figsize=(7.5, 6.))
-        if subplot:
-            self.legend_bbox = (1.2, 0.5)
+        if legend_bbox is None:
+            if subplot:
+                self.legend_bbox = (1.2, 0.5)
+            else:
+                self.legend_bbox = None
         else:
-            self.legend_bbox = None
+            self.legend_bbox = legend_bbox
         if axes:
             self.axes = axes
         else:
-            self.axes = [0.105, 0.12, 0.6, 0.85]
-#        self.fig.add_axes(self.axes)
+#            self.axes = None
+            self.axes = [0.125,  0.1, 0.775,  0.8]
+
         if subplot:
             self.fig.subplots_adjust(left=self.axes[0], bottom=self.axes[1],
                                      right=(self.axes[0] + self.axes[2]),
                                      top=(self.axes[1] + self.axes[3]))
             self.fig.add_subplot(*subplot)
+        else:
+            self.fig.add_axes(self.axes)
         if style == 'projector':
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family='Helvetica', size='x-large')
@@ -61,10 +70,14 @@ class figure(object):
         ax.xaxis.set_ticks_position('bottom')
         ax.yaxis.set_ticks_position('left')
 
-    def set_ticks(self, xlocator=matplotlib.ticker.LinearLocator()):
+    def set_ticks(self, xlocator=None, ylocator=None):
+        if xlocator is None:
+            xlocator = matplotlib.ticker.LinearLocator()
+        if ylocator is None:
+            ylocator = matplotlib.ticker.LinearLocator()
         ax = self.fig.gca()
         ax.xaxis.set_major_locator(xlocator)
-        ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator())
+        ax.yaxis.set_major_locator(ylocator)
         ax.set_xticklabels(ax.get_xticks(),
                            fontproperties=self.font_properties)
         ax.set_yticklabels(ax.get_yticks(),
@@ -93,6 +106,11 @@ class figure(object):
             if 'loc' not in kwargs:
                 kwargs['loc'] = 10
         self.fig.gca().legend(*args, **kwargs)
+
+    def title(self, *args, **kwargs):
+        if 'fontproperties' not in kwargs:
+            kwargs['fontproperties'] = self.font_properties
+        self.fig.gca().set_title(*args, **kwargs)
 
     def quiver(self, arr, color=None, scaled=True, ax=None):
         """
