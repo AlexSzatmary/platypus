@@ -72,9 +72,9 @@ class figure(object):
 
     def set_ticks(self, xlocator=None, ylocator=None):
         if xlocator is None:
-            xlocator = matplotlib.ticker.LinearLocator()
+            xlocator = matplotlib.ticker.AutoLocator()
         if ylocator is None:
-            ylocator = matplotlib.ticker.LinearLocator()
+            ylocator = matplotlib.ticker.AutoLocator()
         ax = self.fig.gca()
         ax.xaxis.set_major_locator(xlocator)
         ax.yaxis.set_major_locator(ylocator)
