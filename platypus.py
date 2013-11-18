@@ -23,12 +23,19 @@ FORMAT = '.pdf'
 set1 = brewer2mpl.get_map('Set1', 'qualitative', 9).mpl_colors
 set1.append((0., 0., 0.1))
 set2 = set1[:5] + set1[6:] # set2 is like set1 but without yellow
-def set2_color_f(i):
-    return set2[(i - 1) % len(set2)]
-COLORS = 'bgrcmykw'.replace('w', '')
+set3 = set1[1:] # set3 is like set2 but without black
+BLACK = set1[0]
+
+def loop_list(L):
+    return lambda i: L[(i - 1) % len(L)]
+
+set1_color_f = loop_list(set1)
+set2_color_f = loop_list(set2)
+set3_color_f = loop_list(set3)
+#COLORS = 'bgrcmykw'.replace('w', '')
 
 
-class figure(object):
+class Figure(object):
     def __init__(self, axes=None, figsize=(7.5, 6.),
                  style='print', subplot=None, legend_bbox=None):
         self.fig = plt.figure(figsize=(7.5, 6.))
@@ -104,8 +111,8 @@ class figure(object):
         if 'bbox_to_anchor' not in kwargs and self.legend_bbox is not None:
             kwargs['bbox_to_anchor'] = self.legend_bbox
             if 'loc' not in kwargs:
-                kwargs['loc'] = 10
-        self.fig.gca().legend(*args, **kwargs)
+                kwargs['loc'] = 'center'
+        self.legend = self.fig.gca().legend(*args, **kwargs)
 
     def title(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
@@ -137,3 +144,10 @@ class figure(object):
         ymin = min(np.min(arr[:, 1]), np.min(arr[:, 3]))
         ymax = max(np.max(arr[:, 1]), np.max(arr[:, 3]))
         return [xmin, xmax, ymin, ymax]
+
+    def savefig(file_name, **kwargs):
+        if 'bbox_extra_artists' not in kwargs and hasattr(self, 'legend'):
+            kwargs['bbox_extra_artists'] = self.legend
+        if 'bbox_inches' not in kwargs:
+            kwargs['bbox_inches'] = 'tight'
+        self.fig.savefig(file_name, **kwargs)
