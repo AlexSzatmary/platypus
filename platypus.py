@@ -36,30 +36,45 @@ set3_color_f = loop_list(set3)
 
 
 class Figure(object):
-    def __init__(self, axes=None, figsize=(7.5, 6.),
+    def __init__(self, axes=None, figsize=None,
                  style='print', subplot=None, legend_bbox=None):
-        self.fig = plt.figure(figsize=(7.5, 6.))
+        self.style = style
+
+        if subplot is None:
+            subplot = (1, 1, 1)
+
+        if figsize is None:
+            if self.style == 'print':
+                panesize = (3., 2.)
+            elif style == 'projector':
+                panesize = (7.5, 6.)
+            figsize = (panesize[0] * subplot[1],
+                       panesize[1] * subplot[0])
+        self.fig = plt.figure(figsize=figsize)
+
         if legend_bbox is None:
-            if subplot:
-                self.legend_bbox = (1.2, 0.5)
-            else:
-                self.legend_bbox = None
+            self.legend_bbox = (1.05, 0.5)
         else:
             self.legend_bbox = legend_bbox
         if axes:
             self.axes = axes
         else:
 #            self.axes = None
-            self.axes = [0.125,  0.1, 0.775,  0.8]
+            if self.style == 'print':
+                self.axes = [0.25,  0.25, 0.6,  0.6]
+            elif self.style == 'projector':
+                self.axes = [0.14, 0.1, 0.8, 0.8]
 
         if subplot:
-            self.fig.subplots_adjust(left=self.axes[0], bottom=self.axes[1],
-                                     right=(self.axes[0] + self.axes[2]),
-                                     top=(self.axes[1] + self.axes[3]))
+            self.fig.subplots_adjust(
+                left=(self.axes[0] / subplot[1]),
+                bottom=(self.axes[1] / subplot[0]),
+                right=(1. - (1. - self.axes[0] - self.axes[2]) / subplot[1]),
+                top=(1. - (1. - self.axes[1] - self.axes[3]) / subplot[0]))
             self.fig.add_subplot(*subplot)
         else:
             self.fig.add_axes(self.axes)
-        if style == 'projector':
+        if self.style == 'projector':
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family='Helvetica', size='x-large')
         else:
@@ -72,8 +87,9 @@ class Figure(object):
         ax = self.fig.gca()
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        ax.spines['left']._linewidth = 0.5
-        ax.spines['bottom']._linewidth = 0.5
+        if self.style == 'print':
+            ax.spines['left']._linewidth = 0.5
+            ax.spines['bottom']._linewidth = 0.5
         ax.xaxis.set_ticks_position('bottom')
         ax.yaxis.set_ticks_position('left')
 
@@ -111,7 +127,7 @@ class Figure(object):
         if 'bbox_to_anchor' not in kwargs and self.legend_bbox is not None:
             kwargs['bbox_to_anchor'] = self.legend_bbox
             if 'loc' not in kwargs:
-                kwargs['loc'] = 'center'
+                kwargs['loc'] = 'center left'
         self.legend = self.fig.gca().legend(*args, **kwargs)
 
     def title(self, *args, **kwargs):
@@ -145,9 +161,6 @@ class Figure(object):
         ymax = max(np.max(arr[:, 1]), np.max(arr[:, 3]))
         return [xmin, xmax, ymin, ymax]
 
-    def savefig(file_name, **kwargs):
-        if 'bbox_extra_artists' not in kwargs and hasattr(self, 'legend'):
-            kwargs['bbox_extra_artists'] = self.legend
-        if 'bbox_inches' not in kwargs:
-            kwargs['bbox_inches'] = 'tight'
+    def savefig(self, file_name, **kwargs):
+        ax = self.fig.gca()
         self.fig.savefig(file_name, **kwargs)
