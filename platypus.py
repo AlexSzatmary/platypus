@@ -23,15 +23,24 @@ FORMAT = '.pdf'
 set1 = brewer2mpl.get_map('Set1', 'qualitative', 9).mpl_colors
 set1.append((0., 0., 0.1))
 set2 = set1[:5] + set1[6:] # set2 is like set1 but without yellow
-set3 = set1[1:] # set3 is like set2 but without black
-BLACK = set1[0]
+set3 = set2[:-1] # set3 is like set2 but without black
+BLACK = set2[-1]
 
 def loop_list(L):
-    return lambda i: L[(i - 1) % len(L)]
+    return lambda i: L[i % len(L)]
 
 set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
+def setn_color_f(k):
+    def f(j):
+        if j == k:
+            return BLACK
+        elif j < k:
+            return set3[j % len(set3)]
+        elif j > k:
+            return set3[(j + 1) % len(set3)]
+    return f
 #COLORS = 'bgrcmykw'.replace('w', '')
 
 
@@ -93,18 +102,38 @@ class Figure(object):
         ax.xaxis.set_ticks_position('bottom')
         ax.yaxis.set_ticks_position('left')
 
-    def set_ticks(self, xlocator=None, ylocator=None):
-        if xlocator is None:
-            xlocator = matplotlib.ticker.AutoLocator()
-        if ylocator is None:
-            ylocator = matplotlib.ticker.AutoLocator()
+    def set_ticks(self, xlocator=None, ylocator=None, xint=True, yint=True):
         ax = self.fig.gca()
-        ax.xaxis.set_major_locator(xlocator)
-        ax.yaxis.set_major_locator(ylocator)
-        ax.set_xticklabels(ax.get_xticks(),
-                           fontproperties=self.font_properties)
-        ax.set_yticklabels(ax.get_yticks(),
-                           fontproperties=self.font_properties)
+        xlog = ax.get_xscale() == 'log'
+        ylog = ax.get_yscale() == 'log'
+        # if xlocator is None:
+        #     xlocator = matplotlib.ticker.AutoLocator()
+        # if ylocator is None:
+        #     ylocator = matplotlib.ticker.AutoLocator()
+        if xlocator is not None:
+            ax.xaxis.set_major_locator(xlocator)
+        if ylocator is not None:
+            ax.yaxis.set_major_locator(ylocator)
+
+        if xlog:
+            pass
+        elif xint:
+            ax.set_xticklabels(
+                [int(xx) if xx.is_integer() else xx for xx in ax.get_xticks()],
+                fontproperties=self.font_properties)
+        else:
+            ax.set_xticklabels(ax.get_xticks(),
+                               fontproperties=self.font_properties)
+
+        if ylog:
+            pass
+        elif yint:
+            ax.set_yticklabels(
+                [int(xx) if xx.is_integer() else xx for xx in ax.get_yticks()],
+                fontproperties=self.font_properties)
+        else:
+            ax.set_yticklabels(ax.get_yticks(),
+                fontproperties=self.font_properties)
         self.fig.canvas.draw()
 
     def plot(self, *args, **kwargs):
@@ -162,5 +191,57 @@ class Figure(object):
         return [xmin, xmax, ymin, ymax]
 
     def savefig(self, file_name, **kwargs):
+        self.set_ticks()
         ax = self.fig.gca()
         self.fig.savefig(file_name, **kwargs)
+
+
+def multi_plot(
+    L_x, L_y,
+    fig=None, file_name='', my_format=platypus.FORMAT,
+    color_f=platypus.set3_color_f,
+    L_legend=None, title='',
+    xlog=False, xlim=None,
+    ylog=False, ylim=None,
+    xlabel='', ylabel='',
+    subplot=None, style=None, xint=False, yint=False):
+    '''
+    Easy default one-line function interface for making plots
+    '''
+
+    if fig == None:
+        if subplot is None:
+            if L_legend:
+                subplot = (1, 2, 1)
+        fig = Figure(subplot=subplot, style=style)
+
+    ax = fig.fig.gca()
+
+    for (i, (x, y)) in enumerate(zip(L_x, L_y):
+        fig.plot(x, y, color=color_f(i))            
+    fig.set_ticks(xint=xint, yint=yint)
+    fig.fig.canvas.draw()    
+    if xlabel:
+        fig.set_xlabel(xlabel)
+    if ylabel:
+        fig.set_ylabel(ylabel)
+
+    if xlog:
+        ax.set_xscale('log')
+    if xlim is not None:
+        ax.set_xlim(xlim[0], xlim[1])
+
+    if ylog:
+        ax.set_yscale('log')
+    if ylim is not None:
+        ax.set_ylim(ylim[0], ylim[1])
+
+    if L_legend:
+        fig.legend(L_legend)
+
+    if title:
+        fig.title(title)
+
+    if file_name:
+        fig.savefig(file_name + my_format)
+    return fig
