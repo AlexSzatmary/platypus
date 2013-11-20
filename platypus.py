@@ -198,8 +198,8 @@ class Figure(object):
 
 def multi_plot(
     L_x, L_y,
-    fig=None, file_name='', my_format=platypus.FORMAT,
-    color_f=platypus.set3_color_f,
+    fig=None, file_name='', my_format=FORMAT,
+    color_f=set3_color_f,
     L_legend=None, title='',
     xlog=False, xlim=None,
     ylog=False, ylim=None,
@@ -217,7 +217,7 @@ def multi_plot(
 
     ax = fig.fig.gca()
 
-    for (i, (x, y)) in enumerate(zip(L_x, L_y):
+    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
         fig.plot(x, y, color=color_f(i))            
     fig.set_ticks(xint=xint, yint=yint)
     fig.fig.canvas.draw()    
