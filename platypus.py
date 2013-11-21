@@ -204,15 +204,18 @@ def multi_plot(
     xlog=False, xlim=None,
     ylog=False, ylim=None,
     xlabel='', ylabel='',
-    subplot=None, style=None, xint=False, yint=False):
+    xint=False, yint=False, style=None):
     '''
     Easy default one-line function interface for making plots
     '''
 
     if fig == None:
-        if subplot is None:
-            if L_legend:
-                subplot = (1, 2, 1)
+        if L_legend:
+            subplot = (1, 2, 1)
+        else:
+            subplot = (1, 1, 1)
+        if style is None:
+            style = 'print'
         fig = Figure(subplot=subplot, style=style)
 
     ax = fig.fig.gca()
