@@ -46,7 +46,8 @@ def setn_color_f(k):
 
 class Figure(object):
     def __init__(self, axes=None, figsize=None,
-                 style='print', subplot=None, legend_bbox=None):
+                 style='print', subplot=None, legend_bbox=None,
+                 legend_outside=False):
         self.style = style
 
         if subplot is None:
@@ -54,9 +55,9 @@ class Figure(object):
 
         if figsize is None:
             if self.style == 'print':
-                panesize = (3., 2.)
+                panesize = (3., 3.)
             elif style == 'projector':
-                panesize = (7.5, 6.)
+                panesize = (8., 6.)
             figsize = (panesize[0] * subplot[1],
                        panesize[1] * subplot[0])
         self.fig = plt.figure(figsize=figsize)
@@ -74,6 +75,10 @@ class Figure(object):
             elif self.style == 'projector':
                 self.axes = [0.14, 0.1, 0.8, 0.8]
 
+        self.legend_outside = legend_outside
+        if self.legend_outside:
+            self.figlegend = plt.figure(figsize=panesize)
+
         if subplot:
             self.fig.subplots_adjust(
                 left=(self.axes[0] / subplot[1]),
@@ -88,7 +93,7 @@ class Figure(object):
                 family='Helvetica', size='x-large')
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Times')
+                family='Times', size=10)
         self.set_ticks()
         self.clean_axes()
 
@@ -138,7 +143,7 @@ class Figure(object):
 
     def plot(self, *args, **kwargs):
         ax = self.fig.gca()
-        ax.plot(*args, **kwargs)
+        lines = ax.plot(*args, **kwargs)
 
     def set_xlabel(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
@@ -153,11 +158,19 @@ class Figure(object):
     def legend(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
             kwargs['prop'] = self.font_properties
-        if 'bbox_to_anchor' not in kwargs and self.legend_bbox is not None:
-            kwargs['bbox_to_anchor'] = self.legend_bbox
-            if 'loc' not in kwargs:
-                kwargs['loc'] = 'center left'
-        self.legend = self.fig.gca().legend(*args, **kwargs)
+        if not self.legend_outside:
+            if 'bbox_to_anchor' not in kwargs and self.legend_bbox is not None:
+                kwargs['bbox_to_anchor'] = self.legend_bbox
+                if 'loc' not in kwargs:
+                    kwargs['loc'] = 'center left'
+            self.my_legend = self.fig.gca().legend(*args, **kwargs)
+        else:
+            kwargs['loc'] = 'center'
+            self.my_legend = self.figlegend.gca().legend(
+                *([self.fig.gca().lines] + list(args)), **kwargs)
+            for q in self.figlegend.gca().get_children():
+                if not issubclass(q.__class__, matplotlib.legend.Legend):
+                    q.set_visible(False)
 
     def title(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
@@ -190,17 +203,20 @@ class Figure(object):
         ymax = max(np.max(arr[:, 1]), np.max(arr[:, 3]))
         return [xmin, xmax, ymin, ymax]
 
-    def savefig(self, file_name, **kwargs):
+    def savefig(self, file_name, format, **kwargs):
         self.set_ticks()
         ax = self.fig.gca()
-        self.fig.savefig(file_name, **kwargs)
+        self.fig.savefig(file_name + format, **kwargs)
+        if self.legend_outside:
+            self.figlegend.savefig(file_name + '-legend' + format, **kwargs)
 
 
 def multi_plot(
     L_x, L_y,
     fig=None, file_name='', my_format=FORMAT,
     color_f=set3_color_f,
-    L_legend=None, title='',
+    L_legend=None, legend_outside=False,
+    title='',
     xlog=False, xlim=None,
     ylog=False, ylim=None,
     xlabel='', ylabel='',
@@ -210,13 +226,14 @@ def multi_plot(
     '''
 
     if fig == None:
-        if L_legend:
+        if (L_legend is not None) and not legend_outside:
             subplot = (1, 2, 1)
         else:
             subplot = (1, 1, 1)
         if style is None:
             style = 'print'
-        fig = Figure(subplot=subplot, style=style)
+        fig = Figure(subplot=subplot, style=style,
+                     legend_outside=legend_outside)
 
     ax = fig.fig.gca()
 
@@ -246,5 +263,5 @@ def multi_plot(
         fig.title(title)
 
     if file_name:
-        fig.savefig(file_name + my_format)
+        fig.savefig(file_name, my_format)
     return fig
