@@ -220,7 +220,7 @@ def multi_plot(
     xlog=False, xlim=None,
     ylog=False, ylim=None,
     xlabel='', ylabel='',
-    xint=False, yint=False, style=None):
+    xint=False, yint=False, style=None, tight=False):
     '''
     Easy default one-line function interface for making plots
     '''
@@ -262,6 +262,11 @@ def multi_plot(
     if title:
         fig.title(title)
 
+    if tight:
+        bbox_inches = 'tight'
+    else:
+        bbox_inches = None
+
     if file_name:
-        fig.savefig(file_name, my_format)
+        fig.savefig(file_name, my_format, bbox_inches=bbox_inches)
     return fig
