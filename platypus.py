@@ -77,7 +77,7 @@ class Figure(object):
             elif self.style == 'projector':
                 self.axes = [0.14, 0.1, 0.8, 0.8]
             elif self.style == 'poster':
-                self.axes = [0.14, 0.1, 0.8, 0.8]
+                self.axes = [0.14, 0.14, 0.8, 0.8]
 
         self.legend_outside = legend_outside
         if self.legend_outside:
