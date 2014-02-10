@@ -97,7 +97,7 @@ class Figure(object):
                 family='Helvetica', size='x-large')
         elif self.style == 'poster':
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Palatino', size='x-large')
+                family='Palatino', size='xx-large')
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family='Times', size=10)
