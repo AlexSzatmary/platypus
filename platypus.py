@@ -227,7 +227,8 @@ def multi_plot(
     xlog=False, xlim=None,
     ylog=False, ylim=None,
     xlabel='', ylabel='',
-    xint=False, yint=False, style=None, tight=False):
+    xint=False, yint=False, style=None, tight=False,
+    L_marker=None, L_linestyle=None):
     '''
     Easy default one-line function interface for making plots
     '''
@@ -245,7 +246,12 @@ def multi_plot(
     ax = fig.fig.gca()
 
     for (i, (x, y)) in enumerate(zip(L_x, L_y)):
-        fig.plot(x, y, color=color_f(i))            
+        kw = {}
+        if L_marker:
+            kw['marker'] = L_marker[i]
+        if L_linestyle:
+            kw['linestyle'] = L_linestyle[i]
+        line = fig.plot(x, y, color=color_f(i), **kw)
     fig.set_ticks(xint=xint, yint=yint)
     fig.fig.canvas.draw()    
     if xlabel:
