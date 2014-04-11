@@ -57,6 +57,8 @@ class Figure(object):
                 self.axes = [0.25,  0.25, 0.6,  0.6]
             elif self.style == 'projector':
                 self.axes = [0.14, 0.1, 0.8, 0.8]
+            elif self.style == 'poster':
+                self.axes = [0.14, 0.14, 0.8, 0.8]
 
         if subplot is None:
             subplot = (1, 1, 1)
@@ -77,7 +79,8 @@ class Figure(object):
                 panesize = (3., 3.)
             elif self.style == 'projector':
                 panesize = (8., 6.)
-            figsize = (panesize[0] * subplot[1], panesize[1] * subplot[0])
+            elif style == 'poster':
+                panesize = (6., 6.)
         self.fig = plt.figure(figsize=figsize)
 
         if legend_bbox is None:
@@ -102,6 +105,9 @@ class Figure(object):
         if self.style == 'projector':
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family='Helvetica', size='x-large')
+        elif self.style == 'poster':
+            self.font_properties = matplotlib.font_manager.FontProperties(
+                family='Palatino', size='xx-large')
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family='Times', size=10)
