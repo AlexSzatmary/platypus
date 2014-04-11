@@ -50,34 +50,43 @@ class Figure(object):
                  legend_outside=False):
         self.style = style
 
-        if subplot is None:
-            subplot = (1, 1, 1)
-
-        if figsize is None:
-            if self.style == 'print':
-                panesize = (3., 3.)
-            elif style == 'projector':
-                panesize = (8., 6.)
-            elif style == 'poster':
-                panesize = (6., 6.)
-            figsize = (panesize[0] * subplot[1],
-                       panesize[1] * subplot[0])
-        self.fig = plt.figure(figsize=figsize)
-
-        if legend_bbox is None:
-            self.legend_bbox = (1.05, 0.5)
-        else:
-            self.legend_bbox = legend_bbox
         if axes:
             self.axes = axes
         else:
-#            self.axes = None
             if self.style == 'print':
                 self.axes = [0.25,  0.25, 0.6,  0.6]
             elif self.style == 'projector':
                 self.axes = [0.14, 0.1, 0.8, 0.8]
             elif self.style == 'poster':
                 self.axes = [0.14, 0.14, 0.8, 0.8]
+
+        if subplot is None:
+            subplot = (1, 1, 1)
+            wspace = 0.
+            hspace = 0.
+        else:
+            if subplot[1] > 1:
+                wspace = (1. - self.axes[2]) / self.axes[2]
+            else:
+                wspace = 0.
+            if subplot[0] > 1:
+                hspace = (1. - self.axes[3]) / self.axes[3]
+            else:
+                hspace = 0.
+
+        if figsize is None:
+            if self.style == 'print':
+                panesize = (3., 3.)
+            elif self.style == 'projector':
+                panesize = (8., 6.)
+            elif style == 'poster':
+                panesize = (6., 6.)
+        self.fig = plt.figure(figsize=figsize)
+
+        if legend_bbox is None:
+            self.legend_bbox = (1.05, 0.5)
+        else:
+            self.legend_bbox = legend_bbox
 
         self.legend_outside = legend_outside
         if self.legend_outside:
@@ -88,7 +97,8 @@ class Figure(object):
                 left=(self.axes[0] / subplot[1]),
                 bottom=(self.axes[1] / subplot[0]),
                 right=(1. - (1. - self.axes[0] - self.axes[2]) / subplot[1]),
-                top=(1. - (1. - self.axes[1] - self.axes[3]) / subplot[0]))
+                top=(1. - (1. - self.axes[1] - self.axes[3]) / subplot[0]),
+                wspace=wspace, hspace=hspace)
             self.fig.add_subplot(*subplot)
         else:
             self.fig.add_axes(self.axes)
