@@ -2,6 +2,7 @@ import brewer2mpl
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 def make_markers():
@@ -58,7 +59,7 @@ class Figure(object):
             elif self.style == 'projector':
                 self.axes = [0.14, 0.1, 0.8, 0.8]
             elif self.style == 'poster':
-                self.axes = [0.14, 0.14, 0.8, 0.8]
+                self.axes = [0.2, 0.2, 0.7, 0.7]
 
         if subplot is None:
             subplot = (1, 1, 1)
@@ -81,6 +82,8 @@ class Figure(object):
                 panesize = (8., 6.)
             elif style == 'poster':
                 panesize = (6., 6.)
+            figsize = (panesize[0] * subplot[1], panesize[1] * subplot[0])
+
         self.fig = plt.figure(figsize=figsize)
 
         if legend_bbox is None:
@@ -220,12 +223,17 @@ class Figure(object):
         ymax = max(np.max(arr[:, 1]), np.max(arr[:, 3]))
         return [xmin, xmax, ymin, ymax]
 
-    def savefig(self, file_name, format, **kwargs):
+    def savefig(self, file_name, my_format, path=None, **kwargs):
         self.set_ticks()
         ax = self.fig.gca()
-        self.fig.savefig(file_name + format, **kwargs)
+        if path is not None:
+            out_file_path = os.path.join(path, file_name + my_format)
+        self.fig.savefig(out_file_path, **kwargs)
         if self.legend_outside:
-            self.figlegend.savefig(file_name + '-legend' + format, **kwargs)
+            if path is not None:
+                out_file_path_legend = os.path.join(
+                    path, file_name + '-legend' + my_format)
+            self.figlegend.savefig(file_name + '-legend' + my_format, **kwargs)
 
 
 def multi_plot(
@@ -238,7 +246,7 @@ def multi_plot(
     ylog=False, ylim=None,
     xlabel='', ylabel='',
     xint=False, yint=False, style=None, tight=False,
-    L_marker=None, L_linestyle=None):
+    L_marker=None, L_linestyle=None, path=None):
     '''
     Easy default one-line function interface for making plots
     '''
@@ -291,5 +299,7 @@ def multi_plot(
         bbox_inches = None
 
     if file_name:
-        fig.savefig(file_name, my_format, bbox_inches=bbox_inches)
+        fig.savefig(file_name, my_format, path=path,
+                    bbox_inches=bbox_inches)
+                    
     return fig
