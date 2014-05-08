@@ -40,7 +40,7 @@ def setn_color_f(k):
         elif j < k:
             return set3[j % len(set3)]
         elif j > k:
-            return set3[(j + 1) % len(set3)]
+            return set3[(j - 1) % len(set3)]
     return f
 #COLORS = 'bgrcmykw'.replace('w', '')
 
@@ -55,7 +55,7 @@ class Figure(object):
             self.axes = axes
         else:
             if self.style == 'print':
-                self.axes = [0.25,  0.25, 0.6,  0.6]
+                self.axes = [0.25,  0.25, 0.7,  0.7]
             elif self.style == 'projector':
                 self.axes = [0.14, 0.1, 0.8, 0.8]
             elif self.style == 'poster':
