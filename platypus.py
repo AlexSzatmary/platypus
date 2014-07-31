@@ -57,7 +57,7 @@ class Figure(object):
             if self.style == 'print':
                 self.axes = [0.25,  0.25, 0.7,  0.7]
             elif self.style == 'projector':
-                self.axes = [0.14, 0.1, 0.8, 0.8]
+                self.axes = [0.14, 0.14, 0.8, 0.8]
             elif self.style == 'poster':
                 self.axes = [0.17, 0.17, 0.8, 0.8]
 
@@ -228,12 +228,16 @@ class Figure(object):
         ax = self.fig.gca()
         if path is not None:
             out_file_path = os.path.join(path, file_name + my_format)
+        else:
+            out_file_path = os.path.join(file_name + my_format)
         self.fig.savefig(out_file_path, **kwargs)
         if self.legend_outside:
             if path is not None:
-                out_file_path_legend = os.path.join(
+                out_file_name_legend = os.path.join(
                     path, file_name + '-legend' + my_format)
-            self.figlegend.savefig(file_name + '-legend' + my_format, **kwargs)
+            else:
+                out_file_name_legend = path, file_name + '-legend' + my_format
+            self.figlegend.savefig(out_file_name_legend + my_format, **kwargs)
 
 
 def multi_plot(
