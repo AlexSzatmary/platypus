@@ -23,16 +23,20 @@ def make_markers():
 FORMAT = '.pdf'
 set1 = brewer2mpl.get_map('Set1', 'qualitative', 9).mpl_colors
 set1.append((0., 0., 0.1))
-set2 = set1[:5] + set1[6:] # set2 is like set1 but without yellow
-set3 = set2[:-1] # set3 is like set2 but without black
+set2 = set1[:5] + set1[6:]  # set2 is like set1 but without yellow
+set3 = set2[:-1]  # set3 is like set2 but without black
 BLACK = set2[-1]
+
 
 def loop_list(L):
     return lambda i: L[i % len(L)]
 
+
 set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
+
+
 def setn_color_f(k):
     def f(j):
         if j == k:
@@ -158,7 +162,7 @@ class Figure(object):
                 fontproperties=self.font_properties)
         else:
             ax.set_yticklabels(ax.get_yticks(),
-                fontproperties=self.font_properties)
+                               fontproperties=self.font_properties)
         self.fig.canvas.draw()
 
     def plot(self, *args, **kwargs):
@@ -240,22 +244,21 @@ class Figure(object):
             self.figlegend.savefig(out_file_name_legend + my_format, **kwargs)
 
 
-def multi_plot(
-    L_x, L_y,
-    fig=None, file_name='', my_format=FORMAT,
-    color_f=set3_color_f,
-    L_legend=None, legend_outside=False,
-    title='',
-    xlog=False, xlim=None,
-    ylog=False, ylim=None,
-    xlabel='', ylabel='',
-    xint=False, yint=False, style=None, tight=False,
-    L_marker=None, L_linestyle=None, path=None):
+def multi_plot(L_x, L_y,
+               fig=None, file_name='', my_format=FORMAT,
+               color_f=set3_color_f,
+               L_legend=None, legend_outside=False,
+               title='',
+               xlog=False, xlim=None,
+               ylog=False, ylim=None,
+               xlabel='', ylabel='',
+               xint=False, yint=False, style=None, tight=False,
+               L_marker=None, L_linestyle=None, path=None):
     '''
     Easy default one-line function interface for making plots
     '''
 
-    if fig == None:
+    if fig is None:
         if (L_legend is not None) and not legend_outside:
             subplot = (1, 2, 1)
         else:
@@ -275,7 +278,7 @@ def multi_plot(
             kw['linestyle'] = L_linestyle[i]
         line = fig.plot(x, y, color=color_f(i), **kw)
     fig.set_ticks(xint=xint, yint=yint)
-    fig.fig.canvas.draw()    
+    fig.fig.canvas.draw()
     if xlabel:
         fig.set_xlabel(xlabel)
     if ylabel:
@@ -305,5 +308,4 @@ def multi_plot(
     if file_name:
         fig.savefig(file_name, my_format, path=path,
                     bbox_inches=bbox_inches)
-                    
     return fig
