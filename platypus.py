@@ -111,13 +111,13 @@ class Figure(object):
             self.fig.add_axes(self.axes)
         if self.style == 'projector':
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Helvetica', size='x-large')
+                family=u'Helvetica', size='x-large')
         elif self.style == 'poster':
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Palatino', size=40)
+                family=u'Palatino', size=40)
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Times', size=10)
+                family=u'Times', size=10)
         self.set_ticks()
         self.clean_axes()
 
