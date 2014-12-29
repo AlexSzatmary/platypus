@@ -114,7 +114,7 @@ class Figure(object):
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family=u'Times', size=10)
-        self.set_ticks()
+        self.set_tick_font()
         self.clean_axes()
 
     def clean_axes(self):
@@ -127,39 +127,12 @@ class Figure(object):
         ax.xaxis.set_ticks_position('bottom')
         ax.yaxis.set_ticks_position('left')
 
-    def set_ticks(self, xlocator=None, ylocator=None, xint=True, yint=True):
-        ax = self.fig.gca()
-        xlog = ax.get_xscale() == 'log'
-        ylog = ax.get_yscale() == 'log'
-        # if xlocator is None:
-        #     xlocator = matplotlib.ticker.AutoLocator()
-        # if ylocator is None:
-        #     ylocator = matplotlib.ticker.AutoLocator()
-        if xlocator is not None:
-            ax.xaxis.set_major_locator(xlocator)
-        if ylocator is not None:
-            ax.yaxis.set_major_locator(ylocator)
-
-        if xlog:
-            pass
-        elif xint:
-            ax.set_xticklabels(
-                [int(xx) if xx.is_integer() else xx for xx in ax.get_xticks()],
-                fontproperties=self.font_properties)
-        else:
-            ax.set_xticklabels(ax.get_xticks(),
-                               fontproperties=self.font_properties)
-
-        if ylog:
-            pass
-        elif yint:
-            ax.set_yticklabels(
-                [int(xx) if xx.is_integer() else xx for xx in ax.get_yticks()],
-                fontproperties=self.font_properties)
-        else:
-            ax.set_yticklabels(ax.get_yticks(),
-                fontproperties=self.font_properties)
-        self.fig.canvas.draw()
+    def set_tick_font(self):
+        ax = self.fig.gca()        
+        for label in ax.get_xticklabels():
+            label.set_font_properties(self.font_properties)
+        for label in ax.get_yticklabels():
+            label.set_font_properties(self.font_properties)
 
     def plot(self, *args, **kwargs):
         ax = self.fig.gca()
@@ -194,7 +167,6 @@ class Figure(object):
 
     def add_subplot(self, *args):
         self.fig.add_subplot(*args)
-        self.set_ticks()
         self.clean_axes()
 
     def title(self, *args, **kwargs):
@@ -228,8 +200,7 @@ class Figure(object):
         ymax = max(np.max(arr[:, 1]), np.max(arr[:, 3]))
         return [xmin, xmax, ymin, ymax]
 
-    def savefig(self, file_name, my_format, path=None, **kwargs):
-        self.set_ticks()
+    def savefig(self, file_name, my_format=FORMAT, path=None, **kwargs):
         ax = self.fig.gca()
         if path is not None:
             out_file_path = os.path.join(path, file_name + my_format)
@@ -254,7 +225,7 @@ def multi_plot(
     xlog=False, xlim=None,
     ylog=False, ylim=None,
     xlabel='', ylabel='',
-    xint=False, yint=False, style=None, tight=False,
+    style=None, tight=False,
     L_marker=None, L_linestyle=None, path=None, **kwargs):
     '''
     Easy default one-line function interface for making plots
@@ -278,7 +249,6 @@ def multi_plot(
         if L_linestyle:
             kwargs['linestyle'] = L_linestyle[i]
         line = fig.plot(x, y, color=color_f(i), **kwargs)
-    fig.set_ticks(xint=xint, yint=yint)
     fig.fig.canvas.draw()    
     if xlabel:
         fig.set_xlabel(xlabel)
