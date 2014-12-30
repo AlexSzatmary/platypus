@@ -134,6 +134,18 @@ class Figure(object):
         for label in ax.get_yticklabels():
             label.set_font_properties(self.font_properties)
 
+    def set_xint(self):
+        ax = self.fig.gca()
+        ax.xaxis.set_major_locator(
+            matplotlib.ticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10],
+                                          integer=True))
+
+    def set_yint(self):
+        ax = self.fig.gca()
+        ax.yaxis.set_major_locator(
+            matplotlib.ticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10],
+                                          integer=True))
+
     def plot(self, *args, **kwargs):
         ax = self.fig.gca()
         lines = ax.plot(*args, **kwargs)
@@ -168,6 +180,7 @@ class Figure(object):
     def add_subplot(self, *args):
         self.fig.add_subplot(*args)
         self.clean_axes()
+        self.set_tick_font()
 
     def title(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
