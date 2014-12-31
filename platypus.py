@@ -55,7 +55,7 @@ class Figure(object):
             self.axes = axes
         else:
             if self.style == 'print':
-                self.axes = [0.25,  0.25, 0.7,  0.7]
+                self.axes = [0.25,  0.25, 0.65,  0.65]
             elif self.style == 'projector':
                 self.axes = [0.14, 0.14, 0.8, 0.8]
             elif self.style == 'poster':
