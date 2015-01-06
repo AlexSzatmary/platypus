@@ -311,9 +311,18 @@ def multi_plot(L_x, L_y, **kwargs):
     return fig
 
 
-def _boxplot_helper(fig, x, **kwargs):
+def _boxplot_helper(
+    fig, x,
+    boxprops={'color': 'black'}, capprops={'color': 'black'},
+    flierprops={'color': 'black'}, meanprops={'color': 'black'},
+    medianprops={'color': 'black'}, whiskerprops={'color': 'black'},
+    **kwargs):
     ax = fig.fig.gca()
-    ax.boxplot(x, **kwargs)
+    ax.boxplot(
+        x, boxprops=boxprops, capprops=capprops,
+        flierprops=flierprops, meanprops=meanprops,
+        medianprops=medianprops, whiskerprops=whiskerprops,
+        **kwargs)
 
 
 def boxplot(x, notch=False, sym='k.', vert=False, axes=None, **kwargs):
