@@ -231,32 +231,29 @@ class Figure(object):
 
 def _plot(
     plot_callback,
-    fig=None, file_name='', my_format=FORMAT,
-    L_legend=None, legend_outside=False,
-    title='',
-    xlog=False, xlim=None,
-    ylog=False, ylim=None,
-    xlabel='', ylabel='',
-    style=None, tight=False,
-    path=None, **kwargs):
+    fig=None,
+    # Figure object parameters
+    axes=None, figsize=None, style='print', subplot=None, legend_bbox=None,
+    legend_outside=False,
+    # End figure object parameters
+    title='', xlabel='', ylabel='', L_legend=None,
+    xlog=None, xlim=None, xint=None, ylog=None, ylim=None, yint=None,
+    path=None, file_name='', my_format=FORMAT, tight=False,
+    **kwargs):
     '''
-    Easy default one-line function interface for making plots
+    Helper for easy plotting functions
     '''
 
-    if fig == None:
-        if (L_legend is not None) and not legend_outside:
+    if fig is None:
+        if (L_legend is not None) and not legend_outside and subplot is None:
             subplot = (1, 2, 1)
-        else:
-            subplot = (1, 1, 1)
-        if style is None:
-            style = 'print'
-        fig = Figure(subplot=subplot, style=style,
-                     legend_outside=legend_outside)
+        fig = Figure(axes=axes, figsize=figsize, style=style, subplot=subplot,
+                     legend_bbox=legend_bbox, legend_outside=legend_outside)
 
     ax = fig.fig.gca()
 
     plot_callback(fig, **kwargs)
-    fig.fig.canvas.draw()    
+
     if xlabel:
         fig.set_xlabel(xlabel)
     if ylabel:
@@ -278,6 +275,8 @@ def _plot(
     if title:
         fig.title(title)
 
+    fig.fig.canvas.draw()    
+
     if tight:
         bbox_inches = 'tight'
     else:
@@ -286,7 +285,6 @@ def _plot(
     if file_name:
         fig.savefig(file_name, my_format, path=path,
                     bbox_inches=bbox_inches)
-                    
     return fig
 
 
@@ -303,9 +301,7 @@ def _multi_plot_helper(fig, L_x, L_y,
 
 
 
-def multi_plot(
-    L_x, L_y,
-    **kwargs):
+def multi_plot(L_x, L_y, **kwargs):
     '''
     Easy default one-line function interface for making plots
     '''
@@ -315,88 +311,19 @@ def multi_plot(
     return fig
 
 
-def _boxplot_helper(fig, x,
-
-    **kwargs):
-    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
-        if L_marker:
-            kwargs['marker'] = L_marker[i]
-        if L_linestyle:
-            kwargs['linestyle'] = L_linestyle[i]
-        line = fig.plot(x, y, color=color_f(i), **kwargs)
+def _boxplot_helper(fig, x, **kwargs):
+    ax = fig.fig.gca()
+    ax.boxplot(x, **kwargs)
 
 
-
-def boxplot(x, **kwargs):
+def boxplot(x, notch=False, sym='k.', vert=False, axes=None, **kwargs):
     '''
     Easy default one-line function interface for making boxplots
     '''
-    fig = platypus.Figure(axes=[0.4,  0.25, 0.55,  0.7], style=style)
+    if axes is None:
+        axes = [0.4,  0.25, 0.55,  0.7]
     def my_callback(fig, **kwargs):
-        return _multi_plot_helper(fig, L_x, L_y, **kwargs)
-    fig = _plot(my_callback, **kwargs)
+        return _boxplot_helper(fig, x, **kwargs)
+    fig = _plot(my_callback, axes=axes, notch=notch, sym=sym, vert=vert,
+                **kwargs)
     return fig
-
-    x, notch=False, sym='k.', vert=False,
-    fig=None, file_name='', my_format=FORMAT,
-    title='',
-    xlog=False, xlim=None,
-    ylog=False, ylim=None,
-    xlabel='', ylabel='',
-    style=None, tight=False,
-    path=None, **kwargs):
-    if fig == None:
-        if (L_legend is not None) and not legend_outside:
-            subplot = (1, 2, 1)
-        else:
-            subplot = (1, 1, 1)
-        if style is None:
-            style = 'print'
-        fig = Figure(subplot=subplot, style=style,
-                     legend_outside=legend_outside)
-
-    ax = fig.fig.gca()
-
-    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
-        if L_marker:
-            kwargs['marker'] = L_marker[i]
-        if L_linestyle:
-            kwargs['linestyle'] = L_linestyle[i]
-        line = fig.plot(x, y, color=color_f(i), **kwargs)
-    fig.fig.canvas.draw()    
-    if xlabel:
-        fig.set_xlabel(xlabel)
-    if ylabel:
-        fig.set_ylabel(ylabel)
-
-    if xlog:
-        ax.set_xscale('log')
-    if xlim is not None:
-        ax.set_xlim(xlim[0], xlim[1])
-    if xint:
-        fig.set_xint()
-
-    if ylog:
-        ax.set_yscale('log')
-    if ylim is not None:
-        ax.set_ylim(ylim[0], ylim[1])
-    if yint:
-        fig.set_yint()
-
-    if L_legend:
-        fig.legend(L_legend)
-
-    if title:
-        fig.title(title)
-
-    if tight:
-        bbox_inches = 'tight'
-    else:
-        bbox_inches = None
-
-    if file_name:
-        fig.savefig(file_name, my_format, path=path,
-                    bbox_inches=bbox_inches)
-                    
-    return fig
-    
