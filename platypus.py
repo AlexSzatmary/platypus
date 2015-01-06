@@ -229,17 +229,16 @@ class Figure(object):
             self.figlegend.savefig(out_file_name_legend + my_format, **kwargs)
 
 
-def multi_plot(
-    L_x, L_y,
+def _plot(
+    plot_callback,
     fig=None, file_name='', my_format=FORMAT,
-    color_f=set3_color_f,
     L_legend=None, legend_outside=False,
     title='',
     xlog=False, xlim=None,
     ylog=False, ylim=None,
     xlabel='', ylabel='',
     style=None, tight=False,
-    L_marker=None, L_linestyle=None, path=None, **kwargs):
+    path=None, **kwargs):
     '''
     Easy default one-line function interface for making plots
     '''
@@ -256,12 +255,7 @@ def multi_plot(
 
     ax = fig.fig.gca()
 
-    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
-        if L_marker:
-            kwargs['marker'] = L_marker[i]
-        if L_linestyle:
-            kwargs['linestyle'] = L_linestyle[i]
-        line = fig.plot(x, y, color=color_f(i), **kwargs)
+    plot_callback(fig, **kwargs)
     fig.fig.canvas.draw()    
     if xlabel:
         fig.set_xlabel(xlabel)
@@ -294,3 +288,115 @@ def multi_plot(
                     bbox_inches=bbox_inches)
                     
     return fig
+
+
+
+def _multi_plot_helper(fig, L_x, L_y,
+    L_marker=None, L_linestyle=None, color_f=set3_color_f,
+    **kwargs):
+    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
+        if L_marker:
+            kwargs['marker'] = L_marker[i]
+        if L_linestyle:
+            kwargs['linestyle'] = L_linestyle[i]
+        line = fig.plot(x, y, color=color_f(i), **kwargs)
+
+
+
+def multi_plot(
+    L_x, L_y,
+    **kwargs):
+    '''
+    Easy default one-line function interface for making plots
+    '''
+    def my_callback(fig, **kwargs):
+        return _multi_plot_helper(fig, L_x, L_y, **kwargs)
+    fig = _plot(my_callback, **kwargs)
+    return fig
+
+
+def _boxplot_helper(fig, x,
+
+    **kwargs):
+    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
+        if L_marker:
+            kwargs['marker'] = L_marker[i]
+        if L_linestyle:
+            kwargs['linestyle'] = L_linestyle[i]
+        line = fig.plot(x, y, color=color_f(i), **kwargs)
+
+
+
+def boxplot(x, **kwargs):
+    '''
+    Easy default one-line function interface for making boxplots
+    '''
+    fig = platypus.Figure(axes=[0.4,  0.25, 0.55,  0.7], style=style)
+    def my_callback(fig, **kwargs):
+        return _multi_plot_helper(fig, L_x, L_y, **kwargs)
+    fig = _plot(my_callback, **kwargs)
+    return fig
+
+    x, notch=False, sym='k.', vert=False,
+    fig=None, file_name='', my_format=FORMAT,
+    title='',
+    xlog=False, xlim=None,
+    ylog=False, ylim=None,
+    xlabel='', ylabel='',
+    style=None, tight=False,
+    path=None, **kwargs):
+    if fig == None:
+        if (L_legend is not None) and not legend_outside:
+            subplot = (1, 2, 1)
+        else:
+            subplot = (1, 1, 1)
+        if style is None:
+            style = 'print'
+        fig = Figure(subplot=subplot, style=style,
+                     legend_outside=legend_outside)
+
+    ax = fig.fig.gca()
+
+    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
+        if L_marker:
+            kwargs['marker'] = L_marker[i]
+        if L_linestyle:
+            kwargs['linestyle'] = L_linestyle[i]
+        line = fig.plot(x, y, color=color_f(i), **kwargs)
+    fig.fig.canvas.draw()    
+    if xlabel:
+        fig.set_xlabel(xlabel)
+    if ylabel:
+        fig.set_ylabel(ylabel)
+
+    if xlog:
+        ax.set_xscale('log')
+    if xlim is not None:
+        ax.set_xlim(xlim[0], xlim[1])
+    if xint:
+        fig.set_xint()
+
+    if ylog:
+        ax.set_yscale('log')
+    if ylim is not None:
+        ax.set_ylim(ylim[0], ylim[1])
+    if yint:
+        fig.set_yint()
+
+    if L_legend:
+        fig.legend(L_legend)
+
+    if title:
+        fig.title(title)
+
+    if tight:
+        bbox_inches = 'tight'
+    else:
+        bbox_inches = None
+
+    if file_name:
+        fig.savefig(file_name, my_format, path=path,
+                    bbox_inches=bbox_inches)
+                    
+    return fig
+    
