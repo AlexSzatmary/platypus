@@ -60,7 +60,7 @@ class Figure(object):
             self.axes = axes
         else:
             if self.style == 'print':
-                self.axes = [0.25,  0.25, 0.7,  0.7]
+                self.axes = [0.25,  0.25, 0.65,  0.65]
             elif self.style == 'projector':
                 self.axes = [0.14, 0.14, 0.8, 0.8]
             elif self.style == 'poster':
@@ -115,11 +115,11 @@ class Figure(object):
                 family=u'Helvetica', size='x-large')
         elif self.style == 'poster':
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family=u'Palatino', size=40)
+                family=u'Palatino', size=20)
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family=u'Times', size=10)
-        self.set_ticks()
+        self.set_tick_font()
         self.clean_axes()
 
     def clean_axes(self):
@@ -132,39 +132,25 @@ class Figure(object):
         ax.xaxis.set_ticks_position('bottom')
         ax.yaxis.set_ticks_position('left')
 
-    def set_ticks(self, xlocator=None, ylocator=None, xint=True, yint=True):
+    def set_tick_font(self):
+        ax = self.fig.gca()        
+        for label in ax.get_xticklabels():
+            label.set_font_properties(self.font_properties)
+        for label in ax.get_yticklabels():
+            label.set_font_properties(self.font_properties)
+
+    def set_xint(self):
         ax = self.fig.gca()
-        xlog = ax.get_xscale() == 'log'
-        ylog = ax.get_yscale() == 'log'
-        # if xlocator is None:
-        #     xlocator = matplotlib.ticker.AutoLocator()
-        # if ylocator is None:
-        #     ylocator = matplotlib.ticker.AutoLocator()
-        if xlocator is not None:
-            ax.xaxis.set_major_locator(xlocator)
-        if ylocator is not None:
-            ax.yaxis.set_major_locator(ylocator)
+        ax.xaxis.set_major_locator(
+            matplotlib.ticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10],
+                                          integer=True))
 
-        if xlog:
-            pass
-        elif xint:
-            ax.set_xticklabels(
-                [int(xx) if xx.is_integer() else xx for xx in ax.get_xticks()],
-                fontproperties=self.font_properties)
-        else:
-            ax.set_xticklabels(ax.get_xticks(),
-                               fontproperties=self.font_properties)
+    def set_yint(self):
+        ax = self.fig.gca()
+        ax.yaxis.set_major_locator(
+            matplotlib.ticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10],
+                                          integer=True))
 
-        if ylog:
-            pass
-        elif yint:
-            ax.set_yticklabels(
-                [int(xx) if xx.is_integer() else xx for xx in ax.get_yticks()],
-                fontproperties=self.font_properties)
-        else:
-            ax.set_yticklabels(ax.get_yticks(),
-                               fontproperties=self.font_properties)
-        self.fig.canvas.draw()
 
     def plot(self, *args, **kwargs):
         ax = self.fig.gca()
@@ -197,6 +183,11 @@ class Figure(object):
                 if not issubclass(q.__class__, matplotlib.legend.Legend):
                     q.set_visible(False)
 
+    def add_subplot(self, *args):
+        self.fig.add_subplot(*args)
+        self.clean_axes()
+        self.set_tick_font()
+
     def title(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
             kwargs['fontproperties'] = self.font_properties
@@ -228,8 +219,7 @@ class Figure(object):
         ymax = max(np.max(arr[:, 1]), np.max(arr[:, 3]))
         return [xmin, xmax, ymin, ymax]
 
-    def savefig(self, file_name, my_format, path=None, **kwargs):
-        self.set_ticks()
+    def savefig(self, file_name, my_format=FORMAT, path=None, **kwargs):
         ax = self.fig.gca()
         if path is not None:
             out_file_path = os.path.join(path, file_name + my_format)
@@ -245,41 +235,31 @@ class Figure(object):
             self.figlegend.savefig(out_file_name_legend + my_format, **kwargs)
 
 
-def multi_plot(L_x, L_y,
-               fig=None, file_name='', my_format=FORMAT,
-               color_f=set3_color_f,
-               L_legend=None, legend_outside=False,
-               title='',
-               xlog=False, xlim=None,
-               ylog=False, ylim=None,
-               xlabel='', ylabel='',
-               xint=False, yint=False, style=None, tight=False,
-               L_marker=None, L_linestyle=None, path=None):
+def _plot(
+    plot_callback,
+    fig=None,
+    # Figure object parameters
+    axes=None, figsize=None, style='print', subplot=None, legend_bbox=None,
+    legend_outside=False,
+    # End figure object parameters
+    title='', xlabel='', ylabel='', L_legend=None,
+    xlog=None, xlim=None, xint=None, ylog=None, ylim=None, yint=None,
+    path=None, file_name='', my_format=FORMAT, tight=False,
+    **kwargs):
     '''
-    Easy default one-line function interface for making plots
+    Helper for easy plotting functions
     '''
 
     if fig is None:
-        if (L_legend is not None) and not legend_outside:
+        if (L_legend is not None) and not legend_outside and subplot is None:
             subplot = (1, 2, 1)
-        else:
-            subplot = (1, 1, 1)
-        if style is None:
-            style = 'print'
-        fig = Figure(subplot=subplot, style=style,
-                     legend_outside=legend_outside)
+        fig = Figure(axes=axes, figsize=figsize, style=style, subplot=subplot,
+                     legend_bbox=legend_bbox, legend_outside=legend_outside)
 
     ax = fig.fig.gca()
 
-    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
-        kw = {}
-        if L_marker:
-            kw['marker'] = L_marker[i]
-        if L_linestyle:
-            kw['linestyle'] = L_linestyle[i]
-        line = fig.plot(x, y, color=color_f(i), **kw)
-    fig.set_ticks(xint=xint, yint=yint)
-    fig.fig.canvas.draw()
+    plot_callback(fig, **kwargs)
+
     if xlabel:
         fig.set_xlabel(xlabel)
     if ylabel:
@@ -301,6 +281,8 @@ def multi_plot(L_x, L_y,
     if title:
         fig.title(title)
 
+    fig.fig.canvas.draw()    
+
     if tight:
         bbox_inches = 'tight'
     else:
@@ -309,4 +291,54 @@ def multi_plot(L_x, L_y,
     if file_name:
         fig.savefig(file_name, my_format, path=path,
                     bbox_inches=bbox_inches)
+    return fig
+
+
+
+def _multi_plot_helper(fig, L_x, L_y,
+    L_marker=None, L_linestyle=None, color_f=set3_color_f,
+    **kwargs):
+    for (i, (x, y)) in enumerate(zip(L_x, L_y)):
+        if L_marker:
+            kwargs['marker'] = L_marker[i]
+        if L_linestyle:
+            kwargs['linestyle'] = L_linestyle[i]
+        line = fig.plot(x, y, color=color_f(i), **kwargs)
+
+
+
+def multi_plot(L_x, L_y, **kwargs):
+    '''
+    Easy default one-line function interface for making plots
+    '''
+    def my_callback(fig, **kwargs):
+        return _multi_plot_helper(fig, L_x, L_y, **kwargs)
+    fig = _plot(my_callback, **kwargs)
+    return fig
+
+
+def _boxplot_helper(
+    fig, x,
+    boxprops={'color': 'black'}, capprops={'color': 'black'},
+    flierprops={'color': 'black'}, meanprops={'color': 'black'},
+    medianprops={'color': 'black'}, whiskerprops={'color': 'black'},
+    **kwargs):
+    ax = fig.fig.gca()
+    ax.boxplot(
+        x, boxprops=boxprops, capprops=capprops,
+        flierprops=flierprops, meanprops=meanprops,
+        medianprops=medianprops, whiskerprops=whiskerprops,
+        **kwargs)
+
+
+def boxplot(x, notch=False, sym='k.', vert=False, axes=None, **kwargs):
+    '''
+    Easy default one-line function interface for making boxplots
+    '''
+    if axes is None:
+        axes = [0.4,  0.25, 0.55,  0.65]
+    def my_callback(fig, **kwargs):
+        return _boxplot_helper(fig, x, **kwargs)
+    fig = _plot(my_callback, axes=axes, notch=notch, sym=sym, vert=vert,
+                **kwargs)
     return fig
