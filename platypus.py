@@ -46,6 +46,7 @@ def setn_color_f(k):
         elif j > k:
             return set3[(j - 1) % len(set3)]
     return f
+set0_color_f = setn_color_f(0)
 #COLORS = 'bgrcmykw'.replace('w', '')
 
 
