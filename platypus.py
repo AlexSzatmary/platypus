@@ -64,7 +64,7 @@ class Figure(object):
             elif self.style == 'projector':
                 self.axes = [0.14, 0.14, 0.8, 0.8]
             elif self.style == 'poster':
-                self.axes = [0.17, 0.17, 0.8, 0.8]
+                self.axes = [0.2, 0.2, 0.75, 0.75]
 
         if subplot is None:
             subplot = (1, 1, 1)
@@ -86,7 +86,7 @@ class Figure(object):
             elif self.style == 'projector':
                 panesize = (8., 6.)
             elif style == 'poster':
-                panesize = (12., 12.)
+                panesize = (5.5, 5.5)
             figsize = (panesize[0] * subplot[1], panesize[1] * subplot[0])
 
         self.fig = plt.figure(figsize=figsize)
