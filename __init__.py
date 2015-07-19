@@ -1,1 +1,1 @@
-from platypus import *
+from .platypus import *

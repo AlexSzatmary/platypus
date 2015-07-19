@@ -16,7 +16,7 @@ def label_curves(axis=None):
 
     N = 32
     Nlines = len(axis.lines)
-    print Nlines
+    print(Nlines)
 
     xmin, xmax = axis.get_xlim()
     ymin, ymax = axis.get_ylim()
@@ -64,7 +64,7 @@ def label_curves(axis=None):
         x = xmin + (xmax-xmin) * best_x / N       
         y = ymin + (ymax-ymin) * best_y / N       
 
-        print axis.lines[l].get_label(), x, y
+        print(axis.lines[l].get_label(), x, y)
         axis.text(x, y, axis.lines[l].get_label(), 
                   horizontalalignment='center',
                   verticalalignment='center')

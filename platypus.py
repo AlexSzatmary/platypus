@@ -9,15 +9,15 @@ def make_markers():
     markers = '.,ov^<>1234sp*hH+xDd|_'
     good_markers = [2, 4, 11, 12, 13, 15, 16, 17, 18, 19, 20]
     liney_markers = [7, 8, 9, 10, 16, 17, 20, 21]
-    l_markers = []
+    L_marker = []
+    L_edgewidth = []
     for i in good_markers:
-        marker = {'marker': markers[i]}
         if i in liney_markers:
-            marker['edgewidth'] = 3.
+            L_edgewidth.append(3.)
         else:
-            marker['edgewidth'] = 1.
-        l_markers.append(marker)
-    return l_markers
+            L_edgewidth.append(1.)
+        L_marker.append(markers[i])
+    return (L_marker, L_edgewidth)
 
 
 FORMAT = '.pdf'
@@ -82,11 +82,11 @@ class Figure(object):
 
         if figsize is None:
             if self.style == 'print':
-                panesize = (3., 3.)
+                panesize = (3.5, 4.)
             elif self.style == 'projector':
                 panesize = (8., 6.)
             elif style == 'poster':
-                panesize = (5.5, 5.5)
+                panesize = (7., 7.)
             figsize = (panesize[0] * subplot[1], panesize[1] * subplot[0])
 
         self.fig = plt.figure(figsize=figsize)
@@ -112,13 +112,13 @@ class Figure(object):
             self.fig.add_axes(self.axes)
         if self.style == 'projector':
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family=u'Helvetica', size='x-large')
+                family='Helvetica', size='x-large')
         elif self.style == 'poster':
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family=u'Palatino', size=20)
+                family='Palatino', size=20)
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
-                family=u'Times', size=10)
+                family='Times', size=10)
         self.set_tick_font()
         self.clean_axes()
 
@@ -296,11 +296,13 @@ def _plot(
 
 
 def _multi_plot_helper(fig, L_x, L_y,
-    L_marker=None, L_linestyle=None, color_f=set3_color_f,
+    L_marker=None, L_markeredgewidth=None, L_linestyle=None, color_f=set3_color_f,
     **kwargs):
     for (i, (x, y)) in enumerate(zip(L_x, L_y)):
         if L_marker:
             kwargs['marker'] = L_marker[i]
+        if L_markeredgewidth:
+            kwargs['markeredgewidth'] = L_markeredgewidth[i]
         if L_linestyle:
             kwargs['linestyle'] = L_linestyle[i]
         line = fig.plot(x, y, color=color_f(i), **kwargs)
