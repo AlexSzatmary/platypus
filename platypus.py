@@ -3,6 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import string
 
 
 def make_markers():
@@ -189,6 +190,12 @@ class Figure(object):
         self.fig.add_subplot(*args)
         self.clean_axes()
         self.set_tick_font()
+
+    def set_AB_labels(self):
+        for (j, ax) in enumerate(self.fig.get_axes()):
+            ax.text(-0.25, 0.975, string.ascii_uppercase[j],
+                     font_properties=self.AB_font_properties,
+                     transform=ax.transAxes)
 
     def title(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
