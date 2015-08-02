@@ -82,7 +82,7 @@ class Figure(object):
 
         if figsize is None:
             if self.style == 'print':
-                panesize = (3.5, 4.)
+                panesize = (3., 3.)
             elif self.style == 'projector':
                 panesize = (8., 6.)
             elif style == 'poster':
@@ -119,6 +119,8 @@ class Figure(object):
         else:
             self.font_properties = matplotlib.font_manager.FontProperties(
                 family='Times', size=10)
+        self.AB_font_properties = matplotlib.font_manager.FontProperties(
+            family='Helvetica', size=14)
         self.set_tick_font()
         self.clean_axes()
 
