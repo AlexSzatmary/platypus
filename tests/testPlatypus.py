@@ -7,7 +7,7 @@ import platypus
 
 @image_comparison(baseline_images=['plot0'], extensions=['pdf', 'png'])
 def test_0():
-    fig = platypus.Figure()
+    fig = platypus.figure()
     x = np.linspace(0, 2*np.pi, 100)
     y = 2*np.sin(x)
     fig.plot(x, y)
@@ -18,7 +18,7 @@ def test_0():
 @image_comparison(baseline_images=['test_AB_labels'],
                   extensions=['pdf', 'png'])
 def test_AB_labels():
-    fig = platypus.Figure(subplot=(2, 2, 1))
+    fig = platypus.figure(subplot=(2, 2, 1))
     x = np.linspace(0, 2*np.pi, 100)
     y = 2*np.sin(x)
     fig.plot(x, y)
@@ -33,3 +33,10 @@ def test_AB_labels():
     fig.set_xlabel('foo')
     fig.set_ylabel('bar')
     fig.set_AB_labels()
+
+@image_comparison(baseline_images=['test_multi_plot'],
+                  extensions=['pdf', 'png'])
+def test_multi_plot():
+    x = np.linspace(0, 2*np.pi, 100)
+    y = 2*np.sin(x)
+    fig = platypus.multi_plot([x], [y], xlabel='foo', ylabel='bar')

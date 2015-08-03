@@ -52,20 +52,10 @@ set0_color_f = setn_color_f(0)
 
 
 class Figure(object):
-    def __init__(self, axes=None, figsize=None,
-                 style='print', subplot=None, legend_bbox=None,
-                 legend_outside=False):
-        self.style = style
-
-        if axes:
-            self.axes = axes
-        else:
-            if self.style == 'print':
-                self.axes = [0.25,  0.25, 0.65,  0.65]
-            elif self.style == 'projector':
-                self.axes = [0.14, 0.14, 0.8, 0.8]
-            elif self.style == 'poster':
-                self.axes = [0.2, 0.2, 0.75, 0.75]
+    def __init__(self, axes=None, figsize=None, panesize=None,
+                 subplot=None, legend_bbox=None,
+                 legend_outside=False, xlabelpad=None, ylabelpad=None):
+        self.axes = axes
 
         if subplot is None:
             subplot = (1, 1, 1)
@@ -82,12 +72,6 @@ class Figure(object):
                 hspace = 0.
 
         if figsize is None:
-            if self.style == 'print':
-                panesize = (3., 3.)
-            elif self.style == 'projector':
-                panesize = (8., 6.)
-            elif style == 'poster':
-                panesize = (7., 7.)
             figsize = (panesize[0] * subplot[1], panesize[1] * subplot[0])
 
         self.fig = plt.figure(figsize=figsize)
@@ -111,17 +95,8 @@ class Figure(object):
             self.fig.add_subplot(*subplot)
         else:
             self.fig.add_axes(self.axes)
-        if self.style == 'projector':
-            self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Helvetica', size='x-large')
-        elif self.style == 'poster':
-            self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Palatino', size=20)
-        else:
-            self.font_properties = matplotlib.font_manager.FontProperties(
-                family='Times', size=10)
-        self.AB_font_properties = matplotlib.font_manager.FontProperties(
-            family='Helvetica', size=14)
+        self.xlabelpad = xlabelpad
+        self.ylabelpad = ylabelpad
         self.set_tick_font()
         self.clean_axes()
 
@@ -129,18 +104,15 @@ class Figure(object):
         ax = self.fig.gca()
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        if self.style == 'print':
-            ax.spines['left']._linewidth = 0.5
-            ax.spines['bottom']._linewidth = 0.5
         ax.xaxis.set_ticks_position('bottom')
         ax.yaxis.set_ticks_position('left')
 
     def set_tick_font(self):
         ax = self.fig.gca()        
         for label in ax.get_xticklabels():
-            label.set_font_properties(self.font_properties)
+            label.set_font_properties(self.tick_font_properties)
         for label in ax.get_yticklabels():
-            label.set_font_properties(self.font_properties)
+            label.set_font_properties(self.tick_font_properties)
 
     def set_xint(self):
         ax = self.fig.gca()
@@ -159,10 +131,13 @@ class Figure(object):
         ax = self.fig.gca()
         lines = ax.plot(*args, **kwargs)
 
-    def set_xlabel(self, *args, **kwargs):
+    def set_xlabel(self, *args, labelpad=None, **kwargs):
         if 'fontproperties' not in kwargs:
             kwargs['fontproperties'] = self.font_properties
-        self.fig.gca().set_xlabel(*args, **kwargs)
+        ax = self.fig.gca()
+        if labelpad is None:
+            labelpad = self.xlabelpad
+        self.fig.gca().set_xlabel(*args, labelpad=labelpad, **kwargs)
 
     def set_ylabel(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
@@ -244,6 +219,82 @@ class Figure(object):
             self.figlegend.savefig(out_file_name_legend + my_format, **kwargs)
 
 
+class Print(Figure):
+    style = 'print'
+    font_properties = matplotlib.font_manager.FontProperties(
+        family='Times', size=10)
+    tick_font_properties = font_properties.copy()
+    tick_font_properties.set_size(8)
+    AB_font_properties = matplotlib.font_manager.FontProperties(
+        family='Helvetica', size=14)
+
+    def __init__(self, axes=[0.25,  0.25, 0.65,  0.65],
+                 panesize=(3., 3.),
+                 xlabelpad=None, ylabelpad=None,
+                 **kwargs):
+        super().__init__(
+            axes=axes, panesize=panesize,
+            xlabelpad=xlabelpad, ylabelpad=ylabelpad,
+            **kwargs)
+
+    def clean_axes(self):
+        super().clean_axes()
+        ax = self.fig.gca()
+        ax.spines['left']._linewidth = 0.5
+        ax.spines['bottom']._linewidth = 0.5
+
+
+class Poster(Figure):
+    style = 'poster'
+    font_properties = matplotlib.font_manager.FontProperties(
+        family='Palatino', size=20)
+    tick_font_properties = font_properties.copy()
+    AB_font_properties = matplotlib.font_manager.FontProperties(
+        family='Helvetica', size=14)
+
+    def __init__(self, axes=[0.2, 0.2, 0.75, 0.75],
+                 panesize=(7., 7.), 
+                 xlabelpad=None, ylabelpad=None,
+                 **kwargs):
+        super().__init__(
+            axes=axes, panesize=panesize,
+            xlabelpad=xlabelpad, ylabelpad=ylabelpad,
+            **kwargs)
+
+
+class Projector(Figure):
+    style = 'projector'
+    font_properties = matplotlib.font_manager.FontProperties(
+        family='Helvetica', size='x-large')
+    tick_font_properties = font_properties.copy()
+    AB_font_properties = matplotlib.font_manager.FontProperties(
+        family='Helvetica', size=14)
+
+    def __init__(self, axes=[0.14, 0.14, 0.8, 0.8],
+                 panesize=(8., 6.), 
+                 xlabelpad=None, ylabelpad=None,
+                 **kwargs):
+        super().__init__(
+            axes=axes, panesize=panesize,
+            xlabelpad=xlabelpad, ylabelpad=ylabelpad,
+            **kwargs)
+
+
+class RSC(Print):
+    def __init__(self, axes=[0.25,  0.25, 0.65,  0.65],
+                 panesize=(3.25, 3.25),
+                 **kwargs):
+        super().__init__(axes=axes, panesize=panesize,
+                         **kwargs)
+
+
+d_fig_cls = {'print': Print, 'RSC': RSC, 'poster': Poster,
+             'projector': Projector}
+
+def figure(style='print', **kwargs):
+    return d_fig_cls[style](**kwargs)
+
+
 def _plot(
     plot_callback,
     fig=None,
@@ -262,17 +313,12 @@ def _plot(
     if fig is None:
         if (L_legend is not None) and not legend_outside and subplot is None:
             subplot = (1, 2, 1)
-        fig = Figure(axes=axes, figsize=figsize, style=style, subplot=subplot,
+        fig = figure(axes=axes, figsize=figsize, style=style, subplot=subplot,
                      legend_bbox=legend_bbox, legend_outside=legend_outside)
 
     ax = fig.fig.gca()
 
     plot_callback(fig, **kwargs)
-
-    if xlabel:
-        fig.set_xlabel(xlabel)
-    if ylabel:
-        fig.set_ylabel(ylabel)
 
     if xlog:
         ax.set_xscale('log')
@@ -283,6 +329,11 @@ def _plot(
         ax.set_yscale('log')
     if ylim is not None:
         ax.set_ylim(ylim[0], ylim[1])
+
+    if xlabel:
+        fig.set_xlabel(xlabel)
+    if ylabel:
+        fig.set_ylabel(ylabel)
 
     if L_legend:
         fig.legend(L_legend)
