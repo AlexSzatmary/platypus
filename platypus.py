@@ -292,6 +292,7 @@ d_fig_cls = {'print': Print, 'RSC': RSC, 'poster': Poster,
              'projector': Projector}
 
 def figure(style='print', **kwargs):
+    kwargs = {k: v for (k, v) in kwargs.items() if v is not None}
     return d_fig_cls[style](**kwargs)
 
 
