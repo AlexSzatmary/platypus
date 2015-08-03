@@ -131,6 +131,9 @@ class Figure(object):
         ax = self.fig.gca()
         lines = ax.plot(*args, **kwargs)
 
+    def multi_plot(self, L_x, L_y, **kwargs):
+        multi_plot(L_x, L_y, fig=self, **kwargs)
+
     def set_xlabel(self, *args, labelpad=None, **kwargs):
         if 'fontproperties' not in kwargs:
             kwargs['fontproperties'] = self.font_properties
@@ -292,7 +295,6 @@ d_fig_cls = {'print': Print, 'RSC': RSC, 'poster': Poster,
              'projector': Projector}
 
 def figure(style='print', **kwargs):
-    kwargs = {k: v for (k, v) in kwargs.items() if v is not None}
     return d_fig_cls[style](**kwargs)
 
 
@@ -300,8 +302,7 @@ def _plot(
     plot_callback,
     fig=None,
     # Figure object parameters
-    axes=None, figsize=None, style='print', subplot=None, legend_bbox=None,
-    legend_outside=False,
+    style='print', subplot=None,
     # End figure object parameters
     title='', xlabel='', ylabel='', L_legend=None,
     xlog=None, xlim=None, xint=None, ylog=None, ylim=None, yint=None,
@@ -312,10 +313,7 @@ def _plot(
     '''
 
     if fig is None:
-        if (L_legend is not None) and not legend_outside and subplot is None:
-            subplot = (1, 2, 1)
-        fig = figure(axes=axes, figsize=figsize, style=style, subplot=subplot,
-                     legend_bbox=legend_bbox, legend_outside=legend_outside)
+        fig = figure(style=style, subplot=subplot)
 
     ax = fig.fig.gca()
 
