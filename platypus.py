@@ -169,9 +169,16 @@ class Figure(object):
         self.clean_axes()
         self.set_tick_font()
 
-    def set_AB_labels(self):
+    def set_AB_labels(
+            self, loc='upper left', L_labels=string.ascii_uppercase):
+        if loc == 'upper right':
+            x = 0.975
+            y = 0.975
+        elif loc == 'upper left':
+            x = -0.2
+            y = 0.975
         for (j, ax) in enumerate(self.fig.get_axes()):
-            ax.text(-0.25, 0.975, string.ascii_uppercase[j],
+            ax.text(x, y, L_labels[j],
                      font_properties=self.AB_font_properties,
                      transform=ax.transAxes)
 
@@ -284,7 +291,7 @@ class Projector(Figure):
 
 
 class RSC(Print):
-    def __init__(self, axes=[0.25,  0.25, 0.65,  0.65],
+    def __init__(self, axes=[0.19,  0.19, 0.78,  0.78],
                  panesize=(3.25, 3.25),
                  **kwargs):
         super().__init__(axes=axes, panesize=panesize,
