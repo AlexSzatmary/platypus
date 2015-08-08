@@ -291,8 +291,9 @@ class Projector(Figure):
 
 
 class RSC(Print):
+    style = 'RSC'
     def __init__(self, axes=[0.19,  0.19, 0.78,  0.78],
-                 panesize=(3.25, 3.25),
+                 panesize=(3.25, 0.75 * 3.25),
                  **kwargs):
         super().__init__(axes=axes, panesize=panesize,
                          **kwargs)
