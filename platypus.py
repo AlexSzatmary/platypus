@@ -22,6 +22,16 @@ def make_markers():
 
 
 FORMAT = '.pdf'
+# Taken from Points of View on "Color blindness"
+set0 = [(0,0,0),
+        (230, 159, 0),
+        (86, 180, 233),
+        (0, 158, 115),
+        (240, 228, 66),
+        (0, 114, 178),
+        (213, 94, 0),
+        (204, 121, 167)]
+set0 = [tuple(x) for x in np.array(set0) / 255.]
 set1 = brewer2mpl.get_map('Set1', 'qualitative', 9).mpl_colors
 set1.append((0., 0., 0.1))
 set2 = set1[:5] + set1[6:]  # set2 is like set1 but without yellow
@@ -33,6 +43,7 @@ def loop_list(L):
     return lambda i: L[i % len(L)]
 
 
+set0_color_f = loop_list(set0)
 set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
@@ -47,7 +58,7 @@ def setn_color_f(k):
         elif j > k:
             return set3[(j - 1) % len(set3)]
     return f
-set0_color_f = setn_color_f(0)
+#set0_color_f = setn_color_f(0)
 #COLORS = 'bgrcmykw'.replace('w', '')
 
 
@@ -363,7 +374,7 @@ def _plot(
 
 
 def _multi_plot_helper(fig, L_x, L_y,
-    L_marker=None, L_markeredgewidth=None, L_linestyle=None, color_f=set3_color_f,
+    L_marker=None, L_markeredgewidth=None, L_linestyle=None, color_f=set0_color_f,
     **kwargs):
     for (i, (x, y)) in enumerate(zip(L_x, L_y)):
         if L_marker:
@@ -391,12 +402,14 @@ def _boxplot_helper(
     boxprops={'color': 'black'}, capprops={'color': 'black'},
     flierprops={'color': 'black'}, meanprops={'color': 'black'},
     medianprops={'color': 'black'}, whiskerprops={'color': 'black'},
+    showfliers=False,
     **kwargs):
     ax = fig.fig.gca()
     ax.boxplot(
         x, boxprops=boxprops, capprops=capprops,
         flierprops=flierprops, meanprops=meanprops,
         medianprops=medianprops, whiskerprops=whiskerprops,
+        showfliers=showfliers,
         **kwargs)
 
 
