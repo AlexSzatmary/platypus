@@ -1,4 +1,4 @@
 *.pyc
 *~
 TAGS
-*.pdf
+.DS_Store
