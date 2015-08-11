@@ -400,14 +400,12 @@ def _boxplot_helper(
         **kwargs)
 
 
-def boxplot(x, notch=False, sym='k.', vert=False, axes=None, **kwargs):
+def boxplot(x, notch=False, sym='k.', vert=False, **kwargs):
     '''
     Easy default one-line function interface for making boxplots
     '''
-    if axes is None:
-        axes = [0.4,  0.25, 0.55,  0.65]
     def my_callback(fig, **kwargs):
         return _boxplot_helper(fig, x, **kwargs)
-    fig = _plot(my_callback, axes=axes, notch=notch, sym=sym, vert=vert,
+    fig = _plot(my_callback, notch=notch, sym=sym, vert=vert,
                 **kwargs)
     return fig
