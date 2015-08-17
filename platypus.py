@@ -181,8 +181,10 @@ class Figure(object):
         self.set_tick_font()
 
     def set_AB_labels(
-            self, loc='upper left', L_labels=string.ascii_uppercase):
-        if loc == 'upper right':
+            self, xy=None, loc='upper left', L_labels=string.ascii_uppercase):
+        if xy is not None:
+            (x, y) = xy
+        elif loc == 'upper right':
             x = 0.975
             y = 0.975
         elif loc == 'upper left':
@@ -308,6 +310,11 @@ class RSC(Print):
                  **kwargs):
         super().__init__(axes=axes, panesize=panesize,
                          **kwargs)
+
+    def set_AB_labels(self, **kwargs):
+        if 'xy' not in kwargs:
+            kwargs['xy'] = (-0.2, 0.95)
+        super().set_AB_labels(**kwargs)
 
 
 d_fig_cls = {'print': Print, 'RSC': RSC, 'poster': Poster,
