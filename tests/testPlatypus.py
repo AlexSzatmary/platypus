@@ -1,9 +1,11 @@
 import numpy as np
 import matplotlib
-from matplotlib.testing.decorators import image_comparison
+from .image_comparison import image_comparison
 import matplotlib.pyplot as plt
-import platypus
+from .. import platypus
 
+def test_nose():
+    pass
 
 @image_comparison(baseline_images=['plot0'], extensions=['pdf', 'png'])
 def test_0():
