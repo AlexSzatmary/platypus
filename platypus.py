@@ -265,6 +265,9 @@ class Print(Figure):
         ax.spines['bottom']._linewidth = 0.5
 
 
+class BPJ(Print):
+    style = 'BPJ'
+
 class Poster(Figure):
     style = 'poster'
     font_properties = matplotlib.font_manager.FontProperties(
@@ -413,7 +416,7 @@ def _boxplot_helper(
         **kwargs)
 
 
-def boxplot(x, notch=False, sym='k.', vert=False, **kwargs):
+def boxplot(x, notch=False, sym='k.', vert=True, **kwargs):
     '''
     Easy default one-line function interface for making boxplots
     '''
