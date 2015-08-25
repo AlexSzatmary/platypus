@@ -161,6 +161,10 @@ class Figure(object):
     def legend(self, *args, **kwargs):
         if 'fontproperties' not in kwargs:
             kwargs['prop'] = self.font_properties
+        if 'handlelength' not in kwargs:
+            kwargs['handlelength'] = 2
+        if 'numpoints' not in kwargs:
+            kwargs['numpoints'] = 1
         if not self.legend_outside:
             if 'bbox_to_anchor' not in kwargs and self.legend_bbox is not None:
                 kwargs['bbox_to_anchor'] = self.legend_bbox
