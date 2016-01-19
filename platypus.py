@@ -277,10 +277,28 @@ class Poster(Figure):
         family='Palatino', size=20)
     tick_font_properties = font_properties.copy()
     AB_font_properties = matplotlib.font_manager.FontProperties(
-        family='Helvetica', size=14)
+        family='Helvetica', size=28)
 
     def __init__(self, axes=[0.2, 0.2, 0.75, 0.75],
                  panesize=(7., 7.), 
+                 xlabelpad=None, ylabelpad=None,
+                 **kwargs):
+        super().__init__(
+            axes=axes, panesize=panesize,
+            xlabelpad=xlabelpad, ylabelpad=ylabelpad,
+            **kwargs)
+
+
+class PosterWide(Poster):
+    style = 'posterwide'
+    font_properties = matplotlib.font_manager.FontProperties(
+        family='Palatino', size=24)
+    tick_font_properties = font_properties.copy()
+    AB_font_properties = matplotlib.font_manager.FontProperties(
+        family='Helvetica', size=32)
+
+    def __init__(self, axes=[0.2, 0.2, 0.75, 0.75],
+                 panesize=(9., 6.), 
                  xlabelpad=None, ylabelpad=None,
                  **kwargs):
         super().__init__(
@@ -321,7 +339,22 @@ class RSC(Print):
         super().set_AB_labels(**kwargs)
 
 
-d_fig_cls = {'print': Print, 'RSC': RSC, 'poster': Poster,
+class BPJ(Print):
+    style = 'BPJ'
+    def __init__(self, axes=[0.17,  0.2, 0.76,  0.75],
+                 panesize=(3.25, 2.),
+                 **kwargs):
+        super().__init__(axes=axes, panesize=panesize,
+                         **kwargs)
+
+    def set_AB_labels(self, **kwargs):
+        if 'xy' not in kwargs:
+            kwargs['xy'] = (-0.2, 0.95)
+        super().set_AB_labels(**kwargs)
+
+
+d_fig_cls = {'print': Print, 'RSC': RSC, 'BPJ': BPJ, 'poster': Poster,
+             'posterwide': PosterWide,
              'projector': Projector}
 
 def figure(style='print', **kwargs):
