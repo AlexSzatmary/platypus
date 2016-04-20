@@ -353,6 +353,11 @@ def _plot(
     if ylim is not None:
         ax.set_ylim(ylim[0], ylim[1])
 
+    if xint:
+        fig.set_xint()
+    if yint:
+        fig.set_yint()
+
     if xlabel:
         fig.set_xlabel(xlabel)
     if ylabel:
