@@ -44,10 +44,13 @@ def loop_list(L):
 
 
 set0_color_f = loop_list(set0)
+color_f_black = lambda x: BLACK
+color_f_color = loop_list(set0[1:])
 set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
-
+blues_color_f = plt.get_cmap('Blues')
+greys_color_f = plt.get_cmap('Greys')
 
 def setn_color_f(k):
     def f(j):
