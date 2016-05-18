@@ -276,13 +276,13 @@ class Poster(Figure):
     font_properties = matplotlib.font_manager.FontProperties(
         family='Palatino', size=20)
     tick_font_properties = font_properties.copy()
-    AB_font_properties = matplotlib.font_manager.FontProperties(
-        family='Helvetica', size=14)
 
     def __init__(self, axes=[0.2, 0.2, 0.75, 0.75],
                  panesize=(7., 7.), 
                  xlabelpad=None, ylabelpad=None,
                  **kwargs):
+        self.AB_font_properties = matplotlib.font_manager.FontProperties(
+            family='Helvetica', size=28)
         super().__init__(
             axes=axes, panesize=panesize,
             xlabelpad=xlabelpad, ylabelpad=ylabelpad,
