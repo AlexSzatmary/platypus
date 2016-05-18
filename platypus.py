@@ -50,6 +50,7 @@ set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
 blues_color_f = plt.get_cmap('Blues')
+blues_color_f2 = lambda x: plt.get_cmap('Blues')(0.2 + 0.8 * x)
 greys_color_f = plt.get_cmap('Greys')
 
 def setn_color_f(k):
