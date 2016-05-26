@@ -44,10 +44,14 @@ def loop_list(L):
 
 
 set0_color_f = loop_list(set0)
+color_f_black = lambda x: BLACK
+color_f_color = loop_list(set0[1:])
 set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
-
+blues_color_f = plt.get_cmap('Blues')
+blues_color_f2 = lambda x: plt.get_cmap('Blues')(0.2 + 0.8 * x)
+greys_color_f = plt.get_cmap('Greys')
 
 def setn_color_f(k):
     def f(j):
@@ -276,13 +280,13 @@ class Poster(Figure):
     font_properties = matplotlib.font_manager.FontProperties(
         family='Palatino', size=20)
     tick_font_properties = font_properties.copy()
-    AB_font_properties = matplotlib.font_manager.FontProperties(
-        family='Helvetica', size=28)
 
     def __init__(self, axes=[0.2, 0.2, 0.75, 0.75],
                  panesize=(7., 7.), 
                  xlabelpad=None, ylabelpad=None,
                  **kwargs):
+        self.AB_font_properties = matplotlib.font_manager.FontProperties(
+            family='Helvetica', size=28)
         super().__init__(
             axes=axes, panesize=panesize,
             xlabelpad=xlabelpad, ylabelpad=ylabelpad,
@@ -405,6 +409,11 @@ def _plot(
         ax.set_yscale('log')
     if ylim is not None:
         ax.set_ylim(ylim[0], ylim[1])
+
+    if xint:
+        fig.set_xint()
+    if yint:
+        fig.set_yint()
 
     if xlabel:
         fig.set_xlabel(xlabel)
