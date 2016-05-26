@@ -271,9 +271,6 @@ class Print(Figure):
         ax.spines['bottom']._linewidth = 0.5
 
 
-class BPJ(Print):
-    style = 'BPJ'
-
 class Poster(Figure):
     style = 'poster'
     font_properties = matplotlib.font_manager.FontProperties(
@@ -355,7 +352,22 @@ class BPJ(Print):
         super().set_AB_labels(**kwargs)
 
 
-d_fig_cls = {'print': Print, 'RSC': RSC, 'BPJ': BPJ, 'poster': Poster,
+class MBOC(Print):
+    style = 'MBOC'
+    def __init__(self, axes=[0.17,  0.2, 0.76,  0.75],
+                 panesize=(3.3, 3.3),
+                 **kwargs):
+        super().__init__(axes=axes, panesize=panesize,
+                         **kwargs)
+
+    def set_AB_labels(self, **kwargs):
+        if 'xy' not in kwargs:
+            kwargs['xy'] = (-0.2, 0.95)
+        super().set_AB_labels(**kwargs)
+
+
+d_fig_cls = {'print': Print, 'RSC': RSC, 'BPJ': BPJ, 'MBOC': MBOC,
+             'poster': Poster,
              'posterwide': PosterWide,
              'projector': Projector}
 
