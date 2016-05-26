@@ -256,7 +256,7 @@ class Print(Figure):
         family='Helvetica', size=14)
 
     def __init__(self, axes=[0.25,  0.25, 0.65,  0.65],
-                 panesize=(3., 3.),
+                 panesize=(3., 2.25),
                  xlabelpad=None, ylabelpad=None,
                  **kwargs):
         super().__init__(
@@ -270,6 +270,9 @@ class Print(Figure):
         ax.spines['left']._linewidth = 0.5
         ax.spines['bottom']._linewidth = 0.5
 
+
+class BPJ(Print):
+    style = 'BPJ'
 
 class Poster(Figure):
     style = 'poster'
@@ -314,7 +317,6 @@ class Projector(Figure):
     tick_font_properties = font_properties.copy()
     AB_font_properties = matplotlib.font_manager.FontProperties(
         family='Helvetica', size=14)
-
     def __init__(self, axes=[0.14, 0.14, 0.8, 0.8],
                  panesize=(8., 6.), 
                  xlabelpad=None, ylabelpad=None,
@@ -457,7 +459,7 @@ def _boxplot_helper(
         **kwargs)
 
 
-def boxplot(x, notch=False, sym='k.', vert=False, **kwargs):
+def boxplot(x, notch=False, sym='k.', vert=True, **kwargs):
     '''
     Easy default one-line function interface for making boxplots
     '''
