@@ -65,24 +65,61 @@ def setn_color_f(k):
 #set0_color_f = setn_color_f(0)
 #COLORS = 'bgrcmykw'.replace('w', '')
 
+def make_grid_spec(nrows, ncols, axes=None, height_ratios=None, width_ratios=None):
+    if height_ratios is None:
+        height_ratios = [1] * nrows
+    my_height_ratios = height_ratios
+    height_ratios = [h - (1. - axes[3]) for h in height_ratios]
+    if width_ratios is None:
+        width_ratios = [1] * ncols
+    my_width_ratios = width_ratios
+    width_ratios = [w - (1. - axes[2]) for w in width_ratios]
+    if ncols > 1:
+        wspace = (1. - axes[2]) / np.mean(width_ratios)
+    else:
+        wspace = 0.
+    if nrows > 1:
+        hspace = (1. - axes[3]) / np.mean(height_ratios)# * (nrows - 1) / nrows
+    else:
+        hspace = 0.
+    gs = matplotlib.gridspec.GridSpec(
+        nrows, ncols,
+        height_ratios=height_ratios, width_ratios=width_ratios,
+        left=(axes[0] / sum(my_width_ratios)),
+        bottom=(axes[1] / sum(my_height_ratios)),
+        right=(1. - (1. - axes[0] - axes[2]) / sum(my_width_ratios)),
+        top=(1. - (1. - axes[1] - axes[3]) / sum(my_height_ratios)),
+        wspace=wspace, hspace=hspace)
+    gs.my_height_ratios = my_height_ratios
+    gs.my_width_ratios = my_width_ratios
+    return gs
+
+def make_figsize(gridspec, panesize):
+    figsize = (panesize[0] * sum(gridspec.my_width_ratios),
+               panesize[1] * (sum(gridspec.my_height_ratios)))
+    return figsize
+
 
 class Figure(object):
     def __init__(self, axes=None, figsize=None, panesize=None,
                  subplot=None, legend_bbox=None,
-                 legend_outside=False, xlabelpad=None, ylabelpad=None):
+                 legend_outside=False, xlabelpad=None, ylabelpad=None,
+                 gs=None):
         self.axes = axes
 
-        if subplot is None:
+        if gs is not None:
+            self.gs = gs
+        elif subplot is None:
             subplot = (1, 1, 1)
             wspace = 0.
             hspace = 0.
         else:
             if subplot[1] > 1:
-                wspace = (1. - self.axes[2]) / self.axes[2]
+                wspace = (1. - self.axes[2])# / self.axes[2]
             else:
                 wspace = 0.
             if subplot[0] > 1:
-                hspace = (1. - self.axes[3]) / self.axes[3]
+                hspace = (1. - self.axes[3])# / self.axes[3]
             else:
                 hspace = 0.
 
@@ -100,7 +137,9 @@ class Figure(object):
         if self.legend_outside:
             self.figlegend = plt.figure(figsize=panesize)
 
-        if subplot:
+        if gs is not None:
+            self.fig.add_subplot(gs[0])
+        elif subplot:
             self.fig.subplots_adjust(
                 left=(self.axes[0] / subplot[1]),
                 bottom=(self.axes[1] / subplot[0]),
@@ -358,8 +397,8 @@ class BPJ(Print):
 
 class MBOC(Print):
     style = 'MBOC'
-    def __init__(self, axes=[0.17,  0.2, 0.76,  0.75],
-                 panesize=(3.3, 3.3),
+    def __init__(self, axes=[0.25,  0.5, 0.65,  0.3],
+                 panesize=(3.3, 1.65),
                  **kwargs):
         super().__init__(axes=axes, panesize=panesize,
                          **kwargs)
