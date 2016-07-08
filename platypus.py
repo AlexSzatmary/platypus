@@ -50,8 +50,10 @@ set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
 blues_color_f = plt.get_cmap('Blues')
-blues_color_f2 = lambda x: plt.get_cmap('Blues')(0.2 + 0.8 * x)
+blues_color_f2 = lambda x: plt.get_cmap('Blues')(0.4 + 0.6 * x)
 greys_color_f = plt.get_cmap('Greys')
+x_color_f2 = lambda cm: lambda x: plt.get_cmap(cm)(0.4 + 0.6 * x)
+greys_color_f2 = x_color_f2('Greys')
 
 def setn_color_f(k):
     def f(j):
@@ -351,16 +353,20 @@ class PosterWide(Poster):
 
 
 class Projector(Figure):
+    def_axes = [0.2, 0.2, 0.7, 0.7]
+    def_panesize = (8., 6.)
     style = 'projector'
     font_properties = matplotlib.font_manager.FontProperties(
         family='Helvetica', size='x-large')
     tick_font_properties = font_properties.copy()
     AB_font_properties = matplotlib.font_manager.FontProperties(
         family='Helvetica', size=14)
-    def __init__(self, axes=[0.14, 0.14, 0.8, 0.8],
-                 panesize=(8., 6.), 
+    def __init__(self, axes=None,
+                 panesize=None,
                  xlabelpad=None, ylabelpad=None,
                  **kwargs):
+        if axes is None: axes = self.def_axes
+        if panesize is None: panesize = self.def_panesize
         super().__init__(
             axes=axes, panesize=panesize,
             xlabelpad=xlabelpad, ylabelpad=ylabelpad,
@@ -397,15 +403,19 @@ class BPJ(Print):
 
 class MBOC(Print):
     style = 'MBOC'
-    def __init__(self, axes=[0.25,  0.5, 0.65,  0.3],
-                 panesize=(3.3, 1.65),
+    def_axes = [0.16,  0.16, 0.8,  0.8]
+    def_panesize = (3.3, 3.3)
+    def __init__(self, axes=None,
+                 panesize=None,
                  **kwargs):
+        if axes is None: axes = self.def_axes
+        if panesize is None: panesize = self.def_panesize
         super().__init__(axes=axes, panesize=panesize,
                          **kwargs)
 
     def set_AB_labels(self, **kwargs):
         if 'xy' not in kwargs:
-            kwargs['xy'] = (-0.2, 0.95)
+            kwargs['xy'] = (-0.19, 0.95)
         super().set_AB_labels(**kwargs)
 
 
