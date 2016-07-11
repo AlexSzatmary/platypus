@@ -1,3 +1,4 @@
+#from .brewer2mpl import *
 import brewer2mpl
 import matplotlib
 import matplotlib.pyplot as plt
@@ -50,8 +51,10 @@ set1_color_f = loop_list(set1)
 set2_color_f = loop_list(set2)
 set3_color_f = loop_list(set3)
 blues_color_f = plt.get_cmap('Blues')
-blues_color_f2 = lambda x: plt.get_cmap('Blues')(0.2 + 0.8 * x)
+blues_color_f2 = lambda x: plt.get_cmap('Blues')(0.4 + 0.6 * x)
 greys_color_f = plt.get_cmap('Greys')
+x_color_f2 = lambda cm: lambda x: plt.get_cmap(cm)(0.4 + 0.6 * x)
+greys_color_f2 = x_color_f2('Greys')
 
 def setn_color_f(k):
     def f(j):
@@ -65,24 +68,63 @@ def setn_color_f(k):
 #set0_color_f = setn_color_f(0)
 #COLORS = 'bgrcmykw'.replace('w', '')
 
+def make_grid_spec(nrows, ncols, axes=None, height_ratios=None, width_ratios=None):
+    if height_ratios is None:
+        height_ratios = [1] * nrows
+    my_height_ratios = height_ratios
+    height_ratios = [h - (1. - axes[3]) for h in height_ratios]
+    if width_ratios is None:
+        width_ratios = [1] * ncols
+    my_width_ratios = width_ratios
+    width_ratios = [w - (1. - axes[2]) for w in width_ratios]
+    if ncols > 1:
+        wspace = (1. - axes[2]) / np.mean(width_ratios)
+    else:
+        wspace = 0.
+    if nrows > 1:
+        hspace = (1. - axes[3]) / np.mean(height_ratios)# * (nrows - 1) / nrows
+    else:
+        hspace = 0.
+    gs = matplotlib.gridspec.GridSpec(
+        nrows, ncols,
+        height_ratios=height_ratios, width_ratios=width_ratios,
+        left=(axes[0] / sum(my_width_ratios)),
+        bottom=(axes[1] / sum(my_height_ratios)),
+        right=(1. - (1. - axes[0] - axes[2]) / sum(my_width_ratios)),
+        top=(1. - (1. - axes[1] - axes[3]) / sum(my_height_ratios)),
+        wspace=wspace, hspace=hspace)
+    gs.my_height_ratios = my_height_ratios
+    gs.my_width_ratios = my_width_ratios
+    return gs
+
+def make_figsize(gridspec, panesize):
+    figsize = (panesize[0] * sum(gridspec.my_width_ratios),
+               panesize[1] * (sum(gridspec.my_height_ratios)))
+    return figsize
+
 
 class Figure(object):
     def __init__(self, axes=None, figsize=None, panesize=None,
                  subplot=None, legend_bbox=None,
-                 legend_outside=False, xlabelpad=None, ylabelpad=None):
+                 legend_outside=False, xlabelpad=None, ylabelpad=None,
+                 gs=None):
+        if axes is None: axes = self.def_axes
+        if panesize is None: panesize = self.def_panesize
         self.axes = axes
 
-        if subplot is None:
+        if gs is not None:
+            self.gs = gs
+        elif subplot is None:
             subplot = (1, 1, 1)
             wspace = 0.
             hspace = 0.
         else:
             if subplot[1] > 1:
-                wspace = (1. - self.axes[2]) / self.axes[2]
+                wspace = (1. - self.axes[2])# / self.axes[2]
             else:
                 wspace = 0.
             if subplot[0] > 1:
-                hspace = (1. - self.axes[3]) / self.axes[3]
+                hspace = (1. - self.axes[3])# / self.axes[3]
             else:
                 hspace = 0.
 
@@ -100,7 +142,9 @@ class Figure(object):
         if self.legend_outside:
             self.figlegend = plt.figure(figsize=panesize)
 
-        if subplot:
+        if gs is not None:
+            self.fig.add_subplot(gs[0])
+        elif subplot:
             self.fig.subplots_adjust(
                 left=(self.axes[0] / subplot[1]),
                 bottom=(self.axes[1] / subplot[0]),
@@ -312,16 +356,20 @@ class PosterWide(Poster):
 
 
 class Projector(Figure):
+    def_axes = [0.2, 0.2, 0.7, 0.7]
+    def_panesize = (8., 6.)
     style = 'projector'
     font_properties = matplotlib.font_manager.FontProperties(
         family='Helvetica', size='x-large')
     tick_font_properties = font_properties.copy()
     AB_font_properties = matplotlib.font_manager.FontProperties(
         family='Helvetica', size=14)
-    def __init__(self, axes=[0.14, 0.14, 0.8, 0.8],
-                 panesize=(8., 6.), 
+    def __init__(self, axes=None,
+                 panesize=None,
                  xlabelpad=None, ylabelpad=None,
                  **kwargs):
+        if axes is None: axes = self.def_axes
+        if panesize is None: panesize = self.def_panesize
         super().__init__(
             axes=axes, panesize=panesize,
             xlabelpad=xlabelpad, ylabelpad=ylabelpad,
@@ -344,11 +392,12 @@ class RSC(Print):
 
 class BPJ(Print):
     style = 'BPJ'
-    def __init__(self, axes=[0.17,  0.2, 0.76,  0.75],
-                 panesize=(3.25, 2.),
+    def_axes = [0.17,  0.2, 0.76,  0.75]
+    def_panesize = (3.25, 2.)
+    def __init__(self, axes=None,
+                 panesize=def_panesize,
                  **kwargs):
-        super().__init__(axes=axes, panesize=panesize,
-                         **kwargs)
+        super().__init__(axes=axes, panesize=panesize, **kwargs)
 
     def set_AB_labels(self, **kwargs):
         if 'xy' not in kwargs:
@@ -358,15 +407,19 @@ class BPJ(Print):
 
 class MBOC(Print):
     style = 'MBOC'
-    def __init__(self, axes=[0.17,  0.2, 0.76,  0.75],
-                 panesize=(3.3, 3.3),
+    def_axes = [0.16,  0.16, 0.8,  0.8]
+    def_panesize = (3.3, 3.3)
+    def __init__(self, axes=None,
+                 panesize=None,
                  **kwargs):
+        if axes is None: axes = self.def_axes
+        if panesize is None: panesize = self.def_panesize
         super().__init__(axes=axes, panesize=panesize,
                          **kwargs)
 
     def set_AB_labels(self, **kwargs):
         if 'xy' not in kwargs:
-            kwargs['xy'] = (-0.2, 0.95)
+            kwargs['xy'] = (-0.19, 0.95)
         super().set_AB_labels(**kwargs)
 
 
