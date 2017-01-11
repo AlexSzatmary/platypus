@@ -33,6 +33,7 @@ set0 = [(0,0,0),
         (213, 94, 0),
         (204, 121, 167)]
 set0 = [tuple(x) for x in np.array(set0) / 255.]
+set0noyellow = set0[:4] + set0[5:] # drop yellow
 set1 = brewer2mpl.get_map('Set1', 'qualitative', 9).mpl_colors
 set1.append((0., 0., 0.1))
 set2 = set1[:5] + set1[6:]  # set2 is like set1 but without yellow
@@ -45,6 +46,7 @@ def loop_list(L):
 
 
 set0_color_f = loop_list(set0)
+set0noyellow_color_f = loop_list(set0noyellow)
 color_f_black = lambda x: BLACK
 color_f_color = loop_list(set0[1:])
 set1_color_f = loop_list(set1)
